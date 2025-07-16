@@ -1,24 +1,35 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
+  db:
+    image: mariadb
+    container_name: mariadb_container_BookingApp
     ports:
-      - "8080:8080"
-    depends_on:
-      - mariadb
-
-  mariadb:
-    image: mariadb:11
+      - "3307:3306"  # Externý port 3308 na interný port 3306
     environment:
-      MYSQL_ROOT_PASSWORD: root
-      MYSQL_DATABASE: booking_easy_app
-    ports:
-      - "3306:3306"
+      MARIADB_ROOT_PASSWORD: root  # Pridajte heslo pre root
+      MYSQL_DATABASE: BookingApp
     volumes:
       - db_data:/var/lib/mysql
+    networks:
+      - app_network  # Pripojiť kontajner k sieti
+
+  phpmyadmin:
+    image: phpmyadmin
+    container_name: BookingApp
+    ports:
+      - "8082:80"  # Externý port 8082 na interný port 80
+    environment:
+      PMA_HOST: db  # Názov služby databázy v rámci siete
+      PMA_PORT: 3306  # Určenie správneho portu na pripojenie k db
+    networks:
+      - app_network  # Pripojiť kontajner k sieti
 
 volumes:
   db_data:
-    external: false
+    external: true
+
+networks:
+  app_network:
+    driver: bridge
 
