@@ -27,7 +27,7 @@ services:
 
 volumes:
   db_data:
-    external: true
+    external: false
 
 networks:
   app_network:
