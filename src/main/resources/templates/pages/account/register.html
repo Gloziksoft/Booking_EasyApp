@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<main role="main" class="flex-grow-1">
+    <div class="container" style="max-width: 450px; margin-top: 40px;">
+
+        <h2 class="text-center mb-4">Registrácia nového používateľa</h2>
+
+        <form th:action="@{/account/register}" th:object="${userDTO}" method="post" novalidate>
+
+            <div>
+                <label for="firstName">Meno:</label>
+                <input type="text" id="firstName" th:field="*{firstName}" required />
+                <p th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" style="color:red;"></p>
+            </div>
+
+            <div>
+                <label for="lastName">Priezvisko:</label>
+                <input type="text" id="lastName" th:field="*{lastName}" required />
+                <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" style="color:red;"></p>
+            </div>
+
+            <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" th:field="*{email}" required />
+                <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red;"></p>
+            </div>
+
+            <div>
+                <label for="password">Heslo:</label>
+                <input type="password" id="password" th:field="*{password}" required />
+                <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:red;"></p>
+            </div>
+
+            <div>
+                <label for="confirmPassword">Potvrď heslo:</label>
+                <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required />
+                <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" style="color:red;"></p>
+            </div>
+
+            <div>
+                <button type="submit">Registrovať sa</button>
+            </div>
+
+            <div th:if="${success}">
+                <p style="color:green;" th:text="${success}"></p>
+            </div>
+
+        </form>
+
+        <p class="text-center mt-3">
+            Už máte účet? <a th:href="@{/account/login}">Prihláste sa</a>
+        </p>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

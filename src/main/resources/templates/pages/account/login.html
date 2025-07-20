@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<main role="main" class="flex-grow-1">
+    <div class="container" style="max-width: 400px; margin-top: 40px;">
+
+        <h2 class="text-center mb-4">Prihlásenie</h2>
+
+        <form th:action="@{/account/login}" method="post" novalidate>
+
+            <div>
+                <label for="email">Email:</label>
+                <input type="text" id="email" name="email" autofocus="autofocus" required />
+            </div>
+
+            <div>
+                <label for="password">Heslo:</label>
+                <input type="password" id="password" name="password" required />
+            </div>
+
+            <div th:if="${param.error}">
+                <p style="color:red;">Nesprávny email alebo heslo.</p>
+            </div>
+
+            <div th:if="${param.logout}">
+                <p style="color:green;">Úspešne ste sa odhlásili.</p>
+            </div>
+
+            <div>
+                <button type="submit">Prihlásiť sa</button>
+            </div>
+
+        </form>
+
+        <p class="text-center mt-3">
+            Nemáte účet? <a th:href="@{/account/register}">Registrujte sa</a>
+        </p>
+
+    </div>
+</main>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>
