@@ -114,7 +114,7 @@ backup.sql
 
 ## 🧑‍💻 Author
 
-Peter Glozik — [LinkedIn](https://www.linkedin.com/)
+Peter Glozik — [https://www.linkedin.com/in/peter-gl%C3%B3zik-a7292b272)
 
 ## 📝 License
 
@@ -236,7 +236,7 @@ backup.sql
 
 ## 🧑‍💻 Autor
 
-Peter Glozik — [LinkedIn](https://www.linkedin.com/)
+Peter Glozik — [https://www.linkedin.com/in/peter-gl%C3%B3zik-a7292b272)
 
 ## 📝 Licencia
 
