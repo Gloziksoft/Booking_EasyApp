@@ -47,9 +47,15 @@ src/
 Edit `src/main/resources/application.properties`:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3307/bookingdb
-spring.datasource.username=youruser
-spring.datasource.password=yourpassword
+spring.application.name=BookingApp
+spring.datasource.url=jdbc:mariadb://localhost:3307/booking_app?createDatabaseIfNotExist=true
+spring.datasource.username=root
+spring.datasource.password=root
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 ```
 
 3. **Run:**
@@ -163,9 +169,15 @@ src/
 Úprava `application.properties`:
 
 ```properties
-spring.datasource.url=jdbc:mysql://localhost:3307/bookingdb
+spring.application.name=BookingApp
+spring.datasource.url=jdbc:mariadb://localhost:3307/booking_app?createDatabaseIfNotExist=true
 spring.datasource.username=root
 spring.datasource.password=root
+spring.datasource.driver-class-name=org.mariadb.jdbc.Driver
+spring.jpa.hibernate.ddl-auto=update
+
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
 ```
 
 3. **Spustenie:**
