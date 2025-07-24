@@ -10,16 +10,10 @@ body {
     background-color: #f4f6f8;
     color: #333;
     line-height: 1.6;
-    padding: 20px;
+    overflow-x: hidden;
 }
 
 /* Header a navigácia */
-header {
-    background-color: #007acc;
-    padding: 15px 20px;
-    margin-bottom: 30px;
-}
-
 header nav ul {
     list-style: none;
     display: flex;
@@ -39,9 +33,8 @@ header nav ul li a:hover {
 
 /* Hlavný obsah */
 main {
-    max-width: 600px;
-    margin: 0 auto;
-    background: white;
+        margin: -15px;
+    background: #d5d5d5;
     padding: 25px 30px;
     border-radius: 8px;
     box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
@@ -103,14 +96,6 @@ p[style*="color:green"] {
     margin-top: 10px;
 }
 
-/* Footer */
-footer {
-    margin-top: 40px;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #777;
-}
-
 /* Responsívne */
 @media (max-width: 640px) {
     main {
@@ -133,4 +118,10 @@ footer {
     background-color: #005f99;
     border-color: #005f99;
 }
+
+.footer-color {
+  background-color: #0f5879;
+  color: white;
+}
+
 

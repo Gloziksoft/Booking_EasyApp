@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:replace="~{fragments/layout.html :: header}"></header>
+<main>
+    <div class="container">
+        <h2 th:text="${reservation.title}"></h2>
+        <p><strong>Popis:</strong> <span th:text="${reservation.description}"></span></p>
+        <p><strong>Začiatok:</strong> <span th:text="${#temporals.format(reservation.startDateTime, 'dd.MM.yyyy HH:mm')}"></span></p>
+        <p><strong>Koniec:</strong> <span th:text="${#temporals.format(reservation.endDateTime, 'dd.MM.yyyy HH:mm')}"></span></p>
+        <a th:href="@{/reservations}" class="btn btn-secondary">Späť</a>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+</body>
+</html>

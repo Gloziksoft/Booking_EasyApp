@@ -1,75 +1,130 @@
 <!DOCTYPE html>
-<html lang="sk" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:sec="http://www.w3.org/1999/xhtml">
+<html lang="sk" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:fragment="head">
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Rezervačná aplikácia"/>
-  <meta name="keywords" content="rezervácia, booking, plánovanie"/>
-  <meta name="author" content="Gloziksoft"/>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="description" content="Rezervačná aplikácia"/>
+    <meta name="keywords" content="rezervácia, booking, plánovanie"/>
+    <meta name="author" content="Gloziksoft"/>
 
-  <title>BookingApp</title>
+    <title>BookingApp</title>
 
-  <!-- CSS -->
-  <link rel="stylesheet" th:href="@{/styles/bootstrap.min.css}"/>
-  <link rel="stylesheet" th:href="@{/styles/styles.css}"/>
-  <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}"/>
+    <!-- CSS -->
+    <link rel="stylesheet" th:href="@{/styles/bootstrap.min.css}"/>
+    <link rel="stylesheet" th:href="@{/styles/styles.css}"/>
+    <link rel="icon" type="image/x-icon" th:href="@{/images/booking_app.jpg}"/>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" defer></script>
 </head>
 
 <body class="d-flex flex-column min-vh-100">
 
 <!-- Navigácia -->
+<!-- Navigácia -->
 <header th:fragment="header">
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-    <div class="container-fluid">
-      <a class="navbar-brand fw-bold" th:href="@{/}">BookingApp</a>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-black shadow-sm mb-3">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" th:href="@{/}">BookingApp</a>
+            <a class="navbar-brand" th:href="@{/about-us}">O aplikácii</a>
 
-      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
-              aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+                    aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-      <div class="collapse navbar-collapse" id="mainNav">
-        <ul class="navbar-nav ms-auto">
-          <li class="nav-item">
-            <a class="nav-link" th:href="@{/}">Domov</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" th:href="@{/bookings}">Rezervácie</a>
-          </li>
-          <li class="nav-item" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{account/login}">Prihlásenie</a>
-          </li>
-          <li class="nav-item" sec:authorize="isAnonymous()">
-            <a class="nav-link" th:href="@{/account/register}">Registrácia</a>
-          </li>
-          <li class="nav-item d-flex align-items-center" sec:authorize="isAuthenticated()">
-            <span class="nav-link" th:text="${#authentication.name}"></span>
-          </li>
-          <li class="nav-item" sec:authorize="isAuthenticated()">
-            <form method="post" th:action="@{/logout}" class="d-inline">
-              <button class="nav-link btn btn-link text-white text-decoration-none">Odhlásiť sa</button>
-            </form>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto">
+
+                    <!-- PONUKA Dropdown -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="ponukaDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Ponuka</a>
+                        <ul class="dropdown-menu" aria-labelledby="ponukaDropdown">
+                            <li><a class="dropdown-item" th:href="@{/offers}">Zobraziť ponuku</a></li>
+                            <li><a class="dropdown-item" th:href="@{/offers/parking}">Parkovanie</a></li>
+                            <li><a class="dropdown-item" th:href="@{/offers/accommodation}">Ubytovanie</a></li>
+                            <!-- Ďalšie typy -->
+                            <!-- <li><a class="dropdown-item" th:href="@{/offers/sports}">Športoviská</a></li> -->
+                        </ul>
+                    </li>
+
+                    <!-- Ostatné položky -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="rezervacieDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Rezervácie</a>
+                        <ul class="dropdown-menu" aria-labelledby="rezervacieDropdown">
+                            <li><a class="dropdown-item" th:href="@{/reservations}">Zoznam Rezervácií</a></li>
+                            <li><a class="dropdown-item" th:href="@{/reservations/create}">Nová rezervácia</a></li>
+                            <li><a class="dropdown-item" th:href="@{/api/reservations}">Kalendár</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Služby -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="sluzbyDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Služby</a>
+                        <ul class="dropdown-menu" aria-labelledby="sluzbyDropdown">
+                            <li><a class="dropdown-item" th:href="@{/sluzby/ponuka}">Ponuka</a></li>
+                            <li><a class="dropdown-item" th:href="@{/sluzby/klienti}">Klienti</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Financie -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="financieDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">Financie</a>
+                        <ul class="dropdown-menu" aria-labelledby="financieDropdown">
+                            <li><a class="dropdown-item" th:href="@{/financie/faktury}">Faktúry</a></li>
+                            <li><a class="dropdown-item" th:href="@{/financie/platby}">Platby</a></li>
+                            <li><a class="dropdown-item" th:href="@{/financie/statistiky}">Štatistiky</a></li>
+                        </ul>
+                    </li>
+
+                    <!-- Autentifikácia -->
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="nav-link" th:href="@{/account/login}">Prihlásenie</a>
+                    </li>
+                    <li class="nav-item" sec:authorize="isAnonymous()">
+                        <a class="nav-link" th:href="@{/account/register}">Registrácia</a>
+                    </li>
+
+                    <!-- Používateľ info -->
+                    <li class="nav-item dropdown d-flex align-items-center text-white me-3"
+                        sec:authorize="isAuthenticated()">
+                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            <span th:text="${#authentication.name}">Používateľ</span>
+                            <span class="badge text-dark bg-warning ms-2"
+                                  th:text="${#strings.replace(#authentication.authorities[0].authority, 'ROLE_', '')}">ROLA</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                            <li><a class="dropdown-item" th:href="@{/profil}">Profil</a></li>
+                            <li><hr class="dropdown-divider"/></li>
+                            <li>
+                                <form method="post" th:action="@{/account/logout}" class="d-inline">
+                                    <button class="dropdown-item" type="submit">Odhlásiť sa</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+
+                </ul>
+            </div>
+        </div>
+    </nav>
 </header>
 
 <!-- Obsah vkladaný zo stránok -->
 <main class="flex-grow-1 py-4">
-  <div class="container" th:fragment="content">
-    <th:block th:insert="~{::content}"/>
-  </div>
+    <div class="container" th:replace="~{::content}"></div>
 </main>
 
-<!-- Footer -->
-<footer th:fragment="footer" class="mt-auto py-3 text-center bg-light text-muted border-top">
-  <div class="container">
-    &copy; 2025 BookingApp. Všetky práva vyhradené.
-  </div>
+<!-- Footer fragment -->
+<footer class="mt-auto py-3 text-center footer-color">
+    <div class="container">
+        &copy; 2023 - <span th:text="${#temporals.format(#temporals.createNow(), 'yyyy')}"></span> BookingApp
+    </div>
 </footer>
 
 <!-- JS -->

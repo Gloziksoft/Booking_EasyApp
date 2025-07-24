@@ -15,22 +15,21 @@ public class ApplicationSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests()
-
-                // Pridanie záznamu (napr. rezervácia) – len ADMIN
-                .requestMatchers("/reservations/create").hasRole("ADMIN")
-
-                // Prístup k zoznamu, detailom, úprave a mazaniu rezervácií – USER aj ADMIN
                 .requestMatchers(
                         "/reservations",
+                        "/reservations/create",
+                        "/reservations/create/**",
                         "/reservations/detail/**",
                         "/reservations/edit/**",
                         "/reservations/delete/**"
                 ).hasAnyRole("USER", "ADMIN")
 
-                // Verejné cesty
                 .requestMatchers(
+                        // Verejné statické zdroje a stránky
                         "/styles/**", "/scripts/**", "/images/**", "/fonts/**",
-                        "/", "/about", "/account/register", "/account/login"
+                        "/", "/about-us", "/account/register", "/account/login",
+                        "/offers", "/offers/**",
+                        "/api/reservations/**"
                 ).permitAll()
 
                 .anyRequest().authenticated()
