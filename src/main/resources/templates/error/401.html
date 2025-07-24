@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body>
+
+<!-- Header section -->
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<!-- Main content section -->
+<div class="container py-5">
+    <div class="card shadow text-center p-5">
+        <!-- Error title -->
+        <h1 class="display-5 text-warning mb-3">401 - Neautorizovaný prístup</h1>
+
+        <!-- Error description -->
+        <p class="lead">Na zobrazenie tejto stránky sa musíš prihlásiť.</p>
+
+        <!-- Link to login page -->
+        <a th:href="@{/account/login}" class="btn btn-primary mt-3">Prihlásiť sa</a>
+    </div>
+</div>
+
+<!-- Footer section -->
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

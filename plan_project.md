@@ -8,4 +8,9 @@
 # 📦 Docker + PostgreSQL/MariaDB	Appka beží izolovane a produkčne-ready
 # 🔒 Spring Security + šifrované heslá	Bezpečnosť ako štandard
 # 🧪 Testy (unit/integration)	Ukážeš, že ti záleží na kvalite kódu
+SQL Prikaz admin role
+
+UPDATE user_roles
+SET role = 'ADMIN'
+WHERE user_id = 1;
 

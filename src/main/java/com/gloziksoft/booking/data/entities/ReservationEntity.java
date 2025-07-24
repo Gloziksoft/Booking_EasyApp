@@ -16,6 +16,8 @@ public class ReservationEntity {
 
     private String title;
 
+    @Lob
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)

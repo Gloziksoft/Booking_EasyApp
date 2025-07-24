@@ -11,8 +11,10 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 @Controller
 @RequestMapping("/reservations")
@@ -82,6 +84,15 @@ public class ReservationController {
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id) {
         reservationService.delete(id);
+        return "redirect:/reservations";
+    }
+
+    /**
+     * Handles cases where reservations is not found.
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public String handleNotFound(RedirectAttributes redirectAttributes) {
+        redirectAttributes.addFlashAttribute("error", "Reazervácia nebola najdená.");
         return "redirect:/reservations";
     }
 }
