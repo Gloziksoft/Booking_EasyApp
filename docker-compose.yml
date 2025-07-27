@@ -3,27 +3,30 @@ version: '3.8'
 services:
   db:
     image: mariadb
-    container_name: mariadb_container_BookingApp
+    container_name: mariadb_container_booking_app
+    restart: always
     ports:
-      - "3307:3306"  # Externý port 3308 na interný port 3306
+      - "3307:3306"
     environment:
-      MARIADB_ROOT_PASSWORD: root  # Pridajte heslo pre root
-      MYSQL_DATABASE: BookingApp
+      MARIADB_ROOT_PASSWORD: root
+      MYSQL_DATABASE: booking_app
     volumes:
-      - db_data:/var/lib/mysql
+      - db_data:/var/lib/mysql           # persistencia dát databázy
+      - ./db-init-scripts:/docker-entrypoint-initdb.d  # init skripty len pri prvom spustení
     networks:
-      - app_network  # Pripojiť kontajner k sieti
+      - app_network
 
   phpmyadmin:
     image: phpmyadmin
-    container_name: BookingApp
+    container_name: booking_app
+    restart: always
     ports:
-      - "8082:80"  # Externý port 8082 na interný port 80
+      - "8082:80"
     environment:
-      PMA_HOST: db  # Názov služby databázy v rámci siete
-      PMA_PORT: 3306  # Určenie správneho portu na pripojenie k db
+      PMA_HOST: db
+      PMA_PORT: 3306
     networks:
-      - app_network  # Pripojiť kontajner k sieti
+      - app_network
 
 volumes:
   db_data:

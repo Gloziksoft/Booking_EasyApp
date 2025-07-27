@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,17 +27,20 @@ public class ReservationServiceImpl implements ReservationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private ReservationMapper reservationMapper;
+
     @Override
     public List<ReservationDTO> findAll() {
         return reservationRepository.findAll().stream()
-                .map(ReservationMapper::toDto)
+                .map(reservationMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Page<ReservationDTO> findAll(Pageable pageable) {
         return reservationRepository.findAll(pageable)
-                .map(ReservationMapper::toDto);
+                .map(reservationMapper::toDTO);
     }
 
     @Override
@@ -46,7 +50,7 @@ public class ReservationServiceImpl implements ReservationService {
             return List.of();
         }
         return reservationRepository.findByUser(user).stream()
-                .map(ReservationMapper::toDto)
+                .map(reservationMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
@@ -57,41 +61,46 @@ public class ReservationServiceImpl implements ReservationService {
             return Page.empty(pageable);
         }
         return reservationRepository.findByUser(user, pageable)
-                .map(ReservationMapper::toDto);
+                .map(reservationMapper::toDTO);
     }
 
     @Override
     public ReservationDTO findById(Long id) {
         return reservationRepository.findById(id)
-                .map(ReservationMapper::toDto)
-                .orElse(null);
+                .map(reservationMapper::toDTO)
+                .orElseThrow(() -> new NoSuchElementException("Rezervácia s ID " + id + " nebola nájdená."));
     }
 
     @Override
     public void create(ReservationDTO dto, String userEmail) {
-        UserEntity user = userRepository.findByEmail(userEmail).orElseThrow();
-        ReservationEntity entity = ReservationMapper.toEntity(dto, user);
+        UserEntity user = userRepository.findByEmail(userEmail)
+                .orElseThrow(() -> new NoSuchElementException("Používateľ s emailom " + userEmail + " neexistuje."));
+        ReservationEntity entity = reservationMapper.toEntity(dto, user);
         reservationRepository.save(entity);
     }
 
     @Override
     public void update(Long id, ReservationDTO updatedDto) {
-        ReservationEntity entity = reservationRepository.findById(id).orElseThrow();
-        entity.setTitle(updatedDto.getTitle());
-        entity.setDescription(updatedDto.getDescription());
-        entity.setStartDateTime(updatedDto.getStartDateTime());
-        entity.setEndDateTime(updatedDto.getEndDateTime());
+        ReservationEntity entity = reservationRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Rezervácia s ID " + id + " nebola nájdená."));
+
+        // Použijeme mapper na aktualizáciu entity s novými dátami
+        reservationMapper.updateReservationEntity(updatedDto, entity);
+
         reservationRepository.save(entity);
     }
 
     @Override
     public void delete(Long id) {
+        if (!reservationRepository.existsById(id)) {
+            throw new NoSuchElementException("Rezervácia s ID " + id + " neexistuje.");
+        }
         reservationRepository.deleteById(id);
     }
 
     @Override
     public Page<ReservationDTO> findAllByServiceType(ServiceType serviceType, Pageable pageable) {
         return reservationRepository.findByServiceType(serviceType, pageable)
-                .map(ReservationMapper::toDto);
+                .map(reservationMapper::toDTO);
     }
 }

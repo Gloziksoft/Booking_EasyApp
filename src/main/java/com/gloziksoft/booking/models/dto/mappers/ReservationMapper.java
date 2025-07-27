@@ -3,41 +3,20 @@ package com.gloziksoft.booking.models.dto.mappers;
 import com.gloziksoft.booking.data.entities.ReservationEntity;
 import com.gloziksoft.booking.data.entities.UserEntity;
 import com.gloziksoft.booking.models.dto.ReservationDTO;
+import org.mapstruct.*;
 
-import java.time.format.DateTimeFormatter;
+@Mapper(componentModel = "spring")
+public interface ReservationMapper {
 
-public class ReservationMapper {
+    ReservationDTO toDTO(ReservationEntity entity);
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+    @Mapping(target = "user", ignore = true)
+    ReservationEntity toEntity(ReservationDTO dto);
 
-    public static ReservationDTO toDto(ReservationEntity entity) {
-        ReservationDTO dto = new ReservationDTO();
-        dto.setId(entity.getId());
-        dto.setTitle(entity.getTitle());
-        dto.setDescription(entity.getDescription());
-        dto.setStartDateTime(entity.getStartDateTime());
-        dto.setEndDateTime(entity.getEndDateTime());
-        dto.setUserId(entity.getUser() != null ? entity.getUser().getId() : null);
+    ReservationEntity toEntity(ReservationDTO dto, @Context UserEntity user);
 
-        // Pridanie ISO string formátov pre kalendár
-        if (entity.getStartDateTime() != null) {
-            dto.setStart(entity.getStartDateTime().format(FORMATTER));
-        }
-        if (entity.getEndDateTime() != null) {
-            dto.setEnd(entity.getEndDateTime().format(FORMATTER));
-        }
+    void updateReservationDTO(ReservationEntity source, @MappingTarget ReservationDTO target);
 
-        return dto;
-    }
-
-    public static ReservationEntity toEntity(ReservationDTO dto, UserEntity user) {
-        ReservationEntity entity = new ReservationEntity();
-        entity.setId(dto.getId());
-        entity.setTitle(dto.getTitle());
-        entity.setDescription(dto.getDescription());
-        entity.setStartDateTime(dto.getStartDateTime());
-        entity.setEndDateTime(dto.getEndDateTime());
-        entity.setUser(user);
-        return entity;
-    }
+    void updateReservationEntity(ReservationDTO source, @MappingTarget ReservationEntity target);
 }
+

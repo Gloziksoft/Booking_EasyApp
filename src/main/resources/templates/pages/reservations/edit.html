@@ -5,28 +5,28 @@
 <body class="d-flex flex-column min-vh-100">
 <header th:replace="~{fragments/layout.html :: header}"></header>
 <main>
-  <div class="container">
-    <h2>Vytvoriť rezerváciu</h2>
-    <form th:action="@{/reservations/edit/{id}(id=${reservation.id})}" th:object="${reservation}" method="post">
-      <div class="mb-3">
-        <label class="form-label">Názov</label>
-        <input class="form-control" th:field="*{title}" required/>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Popis</label>
-        <textarea class="form-control" th:field="*{description}"></textarea>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Začiatok</label>
-        <input type="datetime-local" class="form-control" th:field="*{startDateTime}" required/>
-      </div>
-      <div class="mb-3">
-        <label class="form-label">Koniec</label>
-        <input type="datetime-local" class="form-control" th:field="*{endDateTime}" required/>
-      </div>
-      <button type="submit" class="btn btn-success">Uložiť</button>
-    </form>
-  </div>
+    <div class="container">
+        <h2>Vytvoriť rezerváciu</h2>
+        <form th:action="@{/reservations/edit/{id}(id=${reservation.id})}" th:object="${reservation}" method="post">
+            <div class="mb-3">
+                <label class="form-label">Názov</label>
+                <input class="form-control" th:field="*{title}" required/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Popis</label>
+                <textarea class="form-control" th:field="*{description}"></textarea>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Začiatok</label>
+                <input type="datetime-local" class="form-control" th:field="*{startDateTime}" required/>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Koniec</label>
+                <input type="datetime-local" class="form-control" th:field="*{endDateTime}" required/>
+            </div>
+            <button type="submit" class="btn btn-success">Uložiť</button>
+        </form>
+    </div>
 </main>
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>
 </body>
