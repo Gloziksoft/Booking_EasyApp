@@ -8,7 +8,6 @@ import com.gloziksoft.booking.data.repositories.UserRepository;
 import com.gloziksoft.booking.models.dto.ReservationDTO;
 import com.gloziksoft.booking.models.dto.mappers.ReservationMapper;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -21,15 +20,22 @@ import java.util.stream.Collectors;
 @Transactional
 public class ReservationServiceImpl implements ReservationService {
 
-    @Autowired
-    private ReservationRepository reservationRepository;
+    private final ReservationRepository reservationRepository;
+    private final UserRepository userRepository;
+    private final ReservationMapper reservationMapper;
 
-    @Autowired
-    private UserRepository userRepository;
+    public ReservationServiceImpl(ReservationRepository reservationRepository,
+                                  UserRepository userRepository,
+                                  ReservationMapper reservationMapper) {
+        this.reservationRepository = reservationRepository;
+        this.userRepository = userRepository;
+        this.reservationMapper = reservationMapper;
+    }
 
-    @Autowired
-    private ReservationMapper reservationMapper;
-
+    /**
+     * Retrieves all reservations without pagination.
+     * Maps each ReservationEntity to ReservationDTO.
+     */
     @Override
     public List<ReservationDTO> findAll() {
         return reservationRepository.findAll().stream()
@@ -37,67 +43,93 @@ public class ReservationServiceImpl implements ReservationService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Retrieves all reservations with pagination support.
+     * Maps each ReservationEntity to ReservationDTO.
+     */
     @Override
     public Page<ReservationDTO> findAll(Pageable pageable) {
         return reservationRepository.findAll(pageable)
                 .map(reservationMapper::toDTO);
     }
 
+    /**
+     * Retrieves all reservations for a user identified by their email (no pagination).
+     * Returns empty list if user not found.
+     */
     @Override
     public List<ReservationDTO> findByUserEmail(String email) {
-        UserEntity user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return List.of();
-        }
-        return reservationRepository.findByUser(user).stream()
-                .map(reservationMapper::toDTO)
-                .collect(Collectors.toList());
+        return userRepository.findByEmail(email)
+                .map(user -> reservationRepository.findByUser(user).stream()
+                        .map(reservationMapper::toDTO)
+                        .collect(Collectors.toList()))
+                .orElse(List.of());
     }
 
+    /**
+     * Retrieves paginated reservations for a user by email.
+     * Returns empty page if user not found.
+     */
     @Override
     public Page<ReservationDTO> findByUserEmail(String email, Pageable pageable) {
-        UserEntity user = userRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            return Page.empty(pageable);
-        }
-        return reservationRepository.findByUser(user, pageable)
-                .map(reservationMapper::toDTO);
+        return userRepository.findByEmail(email)
+                .map(user -> reservationRepository.findByUser(user, pageable)
+                        .map(reservationMapper::toDTO))
+                .orElse(Page.empty(pageable));
     }
 
+    /**
+     * Finds a reservation by its ID.
+     * Throws NoSuchElementException if not found.
+     */
     @Override
     public ReservationDTO findById(Long id) {
         return reservationRepository.findById(id)
                 .map(reservationMapper::toDTO)
-                .orElseThrow(() -> new NoSuchElementException("Rezervácia s ID " + id + " nebola nájdená."));
+                .orElseThrow(() -> new NoSuchElementException("Reservation with ID " + id + " not found."));
     }
 
+    /**
+     * Creates a new reservation for the user identified by email.
+     * Throws NoSuchElementException if user not found.
+     */
     @Override
     public void create(ReservationDTO dto, String userEmail) {
         UserEntity user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new NoSuchElementException("Používateľ s emailom " + userEmail + " neexistuje."));
+                .orElseThrow(() -> new NoSuchElementException("User with email " + userEmail + " does not exist."));
         ReservationEntity entity = reservationMapper.toEntity(dto, user);
         reservationRepository.save(entity);
     }
 
+    /**
+     * Updates an existing reservation by ID with new data.
+     * Throws NoSuchElementException if reservation not found.
+     */
     @Override
     public void update(Long id, ReservationDTO updatedDto) {
         ReservationEntity entity = reservationRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Rezervácia s ID " + id + " nebola nájdená."));
+                .orElseThrow(() -> new NoSuchElementException("Reservation with ID " + id + " not found."));
 
-        // Použijeme mapper na aktualizáciu entity s novými dátami
         reservationMapper.updateReservationEntity(updatedDto, entity);
 
         reservationRepository.save(entity);
     }
 
+    /**
+     * Deletes a reservation by its ID.
+     * Throws NoSuchElementException if reservation does not exist.
+     */
     @Override
     public void delete(Long id) {
         if (!reservationRepository.existsById(id)) {
-            throw new NoSuchElementException("Rezervácia s ID " + id + " neexistuje.");
+            throw new NoSuchElementException("Reservation with ID " + id + " does not exist.");
         }
         reservationRepository.deleteById(id);
     }
 
+    /**
+     * Retrieves paginated reservations filtered by service type.
+     */
     @Override
     public Page<ReservationDTO> findAllByServiceType(ServiceType serviceType, Pageable pageable) {
         return reservationRepository.findByServiceType(serviceType, pageable)

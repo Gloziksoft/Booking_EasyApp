@@ -1,47 +1,49 @@
-package com.gloziksoft.booking.data.entities;
+package com.gloziksoft.booking.models.dto;
 
 import com.gloziksoft.booking.data.enums.ServiceType;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-@Entity
-@Table(name = "reservations")
-public class ReservationEntity {
+/**
+ * Data Transfer Object (DTO) for Offer.
+ * This class is used to transfer offer-related data between layers (Controller ↔ Service ↔ View).
+ */
+public class OfferDTO {
 
-    // Primary key with auto-increment strategy
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    // Unique identifier of the offer
     private Long id;
 
-    // Title of the reservation
+    // Title of the offer
     private String title;
 
-    // Detailed description stored as a large text object
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    // Description of the offer
     private String description;
 
-    // Start date and time of the reservation
+    // Start date and time of the offer availability
     private LocalDateTime startDateTime;
 
-    // End date and time of the reservation
+    // End date and time of the offer availability
     private LocalDateTime endDateTime;
 
-    // Many-to-one relationship to the user who made the reservation
-    // Fetch type is LAZY for performance optimization
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
-    // Service type for the reservation, stored as a string enum
-    // This field is required (not null)
-    @NotNull(message = "Service type is required.")
-    @Enumerated(EnumType.STRING)
+    // Type of service this offer belongs to (e.g., haircut, massage)
     private ServiceType serviceType;
 
-    // --- Getters and setters ---
+    // Default constructor
+    public OfferDTO() {}
+
+    // Parameterized constructor for easier instantiation
+    public OfferDTO(Long id, String title, String description,
+                    LocalDateTime startDateTime, LocalDateTime endDateTime,
+                    ServiceType serviceType) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.startDateTime = startDateTime;
+        this.endDateTime = endDateTime;
+        this.serviceType = serviceType;
+    }
+
+    // --- Getters & Setters ---
 
     public Long getId() {
         return id;
@@ -81,14 +83,6 @@ public class ReservationEntity {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
     }
 
     public ServiceType getServiceType() {

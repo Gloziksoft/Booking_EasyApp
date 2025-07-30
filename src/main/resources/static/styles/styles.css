@@ -7,7 +7,7 @@
 
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background-color: #f4f6f8;
+    background: linear-gradient(to bottom, #bababa, #b8b8b8, #dedede);
     color: #333;
     line-height: 1.6;
     overflow-x: hidden;
@@ -29,15 +29,6 @@ header nav ul li a {
 
 header nav ul li a:hover {
     color: #ffd700;
-}
-
-/* Hlavný obsah */
-main {
-        margin: -15px;
-    background: #d5d5d5;
-    padding: 25px 30px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
 }
 
 /* Formuláre */
@@ -70,19 +61,47 @@ input[type="password"]:focus {
 }
 
 button[type="submit"] {
-    background-color: #007acc;
-    color: white;
-    padding: 12px 20px;
+    color: #ffffff;
     border: none;
     border-radius: 4px;
-    font-size: 1.1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    padding: 8px;
+    font-size: 15px;
 }
 
 button[type="submit"]:hover {
     background-color: #005f99;
 }
+
+/* Account Login Form*/
+.login {
+    background-color: #0482d4;
+    padding: 8px;
+}
+
+.login:hover {
+    background-color: #0d6b00 !important;
+}
+
+.logout {
+    display: block;
+    width: 100%;
+    padding: .25rem 1rem;
+    clear: both;
+    font-weight: 400;
+    color: #000 !important;
+    text-align: inherit;
+    text-decoration: none;
+    white-space: nowrap;
+    background-color: transparent;
+    border: 0;
+}
+
+.logout:hover {
+    background-color: #f3f3f3 !important;
+}
+
 
 /* Chybové a úspešné správy */
 p[style*="color:red"] {
@@ -94,19 +113,6 @@ p[style*="color:green"] {
     font-size: 1rem;
     font-weight: 600;
     margin-top: 10px;
-}
-
-/* Responsívne */
-@media (max-width: 640px) {
-    main {
-        padding: 20px;
-        margin: 10px;
-    }
-
-    header nav ul {
-        flex-direction: column;
-        gap: 10px;
-    }
 }
 
 .btn-primary {
@@ -123,5 +129,66 @@ p[style*="color:green"] {
   background-color: #0f5879;
   color: white;
 }
+
+/* Account Profil */
+
+.profile-title {
+    color: #2c3e50;
+    font-weight: 700;
+    font-size: 2rem;
+}
+
+.user-info p {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+}
+
+.admin-section h2 {
+    margin-top: 40px;
+}
+
+table.table {
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-primary {
+    background-color: #007acc !important; /* zachová farbu aj v Bootstrap */
+    color: white !important;
+}
+
+.table-hover tbody tr:hover {
+    background-color: #e1f0ff !important;
+    cursor: default;
+}
+
+/* Zvýraznené pásiky v striped tabuľke */
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: #e3f2fd; /* výraznejšia svetlo modrá */
+}
+
+/* Zvýraznenie pri hover na riadky */
+.table-hover tbody tr:hover {
+    background-color: #90caf9 !important; /* jasnejšia modrá */
+    color: #000 !important; /* čierne písmo na hover */
+    cursor: pointer;
+}
+
+/* Hlavička tabuľky s tmavšou modrou a bielym písmom */
+.table thead.bg-primary {
+    background-color: #0056b3 !important; /* tmavšia modrá farba */
+    color: white !important;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+/* Celkový štýl textu tabuľky */
+.table {
+    font-weight: 500;
+    font-size: 1rem;
+    color: #212529; /* tmavý text */
+}
+
+
 
 

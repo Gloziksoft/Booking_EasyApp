@@ -1,19 +1,46 @@
 package com.gloziksoft.booking.models.dto;
 
+import com.gloziksoft.booking.data.enums.ServiceType;
+import jakarta.validation.constraints.FutureOrPresent;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.time.LocalDateTime;
 
+/**
+ * Data Transfer Object (DTO) for Reservation.
+ * Used to transfer reservation data between layers.
+ * Includes validation annotations to ensure required fields and valid date/time values.
+ */
 public class ReservationDTO {
 
     private Long id;
-    private String title;
-    private String description;
-    private LocalDateTime startDateTime;
-    private LocalDateTime endDateTime;
-    private Long userId;
-    private String start;
-    private String end;
 
-    // --- Gettre a settre ---
+    private String userFirstName;
+
+    private String userLastName;
+
+    @NotNull(message = "Typ rezervácie je povinný.")
+    private ServiceType serviceType;
+
+    @NotBlank(message = "Názov rezervácie je povinný.") // zmenené z @NotNull na @NotBlank
+    private String title;
+
+    @NotBlank(message = "Popis rezervácie je povinný.") // zmenené z @NotNull na @NotBlank
+    private String description;
+
+    @NotNull(message = "Dátum začiatku rezervácie je povinný.")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime startDateTime;
+
+    @NotNull(message = "Dátum ukončenia rezervácie je povinný.")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime endDateTime;
+
+    private Long userId;
+
+    // --- Getters and Setters ---
 
     public Long getId() {
         return id;
@@ -62,21 +89,28 @@ public class ReservationDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-    // getter a setter pre start
-    public String getStart() {
-        return start;
+
+    public String getUserFirstName() {
+        return userFirstName;
     }
 
-    public void setStart(String start) {
-        this.start = start;
+    public void setUserFirstName(String userFirstName) {
+        this.userFirstName = userFirstName;
     }
 
-    // getter a setter pre end
-    public String getEnd() {
-        return end;
+    public String getUserLastName() {
+        return userLastName;
     }
 
-    public void setEnd(String end) {
-        this.end = end;
+    public void setUserLastName(String userLastName) {
+        this.userLastName = userLastName;
+    }
+
+    public ServiceType getServiceType() {
+        return serviceType;
+    }
+
+    public void setServiceType(ServiceType serviceType) {
+        this.serviceType = serviceType;
     }
 }

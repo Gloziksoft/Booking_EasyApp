@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}">
+    <!-- Page title specific to this view -->
+    <title>Profil užívateľa</title>
+</head>
+
+<!-- Import reusable header fragment -->
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<body>
+
+<div class="container my-5">
+
+    <!-- Page main heading -->
+    <h1 class="profile-title mb-4">Profil užívateľa</h1>
+
+    <!-- User personal information section -->
+    <section class="user-info mb-5 p-4 bg-white rounded shadow-sm">
+        <h2 class="mb-3">Osobné údaje</h2>
+        <p><strong>First Name:</strong> <span th:text="${user.firstName}">First</span></p>
+        <p><strong>Last Name:</strong> <span th:text="${user.lastName}">Last</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}">user@example.com</span></p>
+    </section>
+
+    <!-- User reservations list -->
+    <section class="reservations">
+        <h2>Rezervácie</h2>
+        <table class="table table-striped table-hover shadow-sm bg-white rounded">
+            <thead class="bg-primary text-white">
+            <tr>
+                <th>ID</th>
+                <th>Meno</th>
+                <th>Priezvisko</th>
+                <th>Popis</th>
+                <th>Dátum</th>
+                <th>Typ služby</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop over reservations and display each row -->
+            <tr th:each="r : ${reservations}">
+                <td th:text="${r.id}">1</td>
+                <!-- Concatenate first and last name -->
+                <td th:text="${r.userFirstName + ' ' + r.userLastName}">Meno a Priezvisko</td>
+                <td th:text="${r.description}">Popis</td>
+                <!-- Format date/time for display -->
+                <td th:text="${#temporals.format(r.startDateTime, 'dd.MM.yyyy HH:mm')}"></td>
+                <td th:text="${r.serviceType}">TYP</td>
+            </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- Admin section visible only if user has admin rights -->
+    <div th:if="${isAdmin}" class="admin-section">
+        <h2>Všetci používatelia (Admin sekcia)</h2>
+        <table class="table table-striped table-hover shadow-sm bg-white rounded">
+            <thead class="bg-primary text-white">
+            <tr>
+                <th>Meno</th>
+                <th>Priezvisko</th>
+                <th>Email</th>
+            </tr>
+            </thead>
+            <tbody>
+            <!-- Loop over all users -->
+            <tr th:each="user : ${allUsers}">
+                <td th:text="${user.firstName}">First</td>
+                <td th:text="${user.lastName}">Last</td>
+                <td th:text="${user.email}">Email</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+</div>
+
+<!-- Import reusable footer fragment -->
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

@@ -1,19 +1,28 @@
 package com.gloziksoft.booking.controllers;
 
+import com.gloziksoft.booking.data.entities.UserEntity;
+import com.gloziksoft.booking.data.repositories.UserRepository;
+import com.gloziksoft.booking.models.dto.ReservationDTO;
 import com.gloziksoft.booking.models.dto.UserDTO;
 import com.gloziksoft.booking.models.exceptions.DuplicateEmailException;
 import com.gloziksoft.booking.models.exceptions.PasswordsDoNotEqualException;
+import com.gloziksoft.booking.models.services.ReservationService;
 import com.gloziksoft.booking.models.services.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+
 /**
- * Controller for handling user account actions like login and registration.
+ * Controller for handling user account actions like login, registration, and profile view.
  */
 @Controller
 @RequestMapping("/account")
@@ -21,6 +30,12 @@ public class AccountController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private ReservationService reservationService;
 
     /**
      * Displays the login page.
@@ -33,9 +48,9 @@ public class AccountController {
     }
 
     /**
-     * Displays the registration page.
+     * Displays the registration page with a fresh or existing UserDTO.
      *
-     * @param model The model to populate form data.
+     * @param model The model to populate with form data.
      * @return The registration page view.
      */
     @GetMapping("/register")
@@ -49,10 +64,10 @@ public class AccountController {
     /**
      * Handles user registration.
      *
-     * @param userDTO            The user registration data.
-     * @param result             Binding result for validation errors.
-     * @param redirectAttributes Redirect attributes to pass data between redirects.
-     * @return Redirect to registration or login page based on result.
+     * @param userDTO            Data submitted by the user from the registration form.
+     * @param result             BindingResult to capture validation errors.
+     * @param redirectAttributes Redirect attributes for passing data across redirects.
+     * @return Redirects back to registration page if there are errors, otherwise to login page.
      */
     @PostMapping("/register")
     public String register(
@@ -68,18 +83,18 @@ public class AccountController {
         }
 
         try {
-            // Attempt to create a new user
+            // Attempt to create a new user (non-admin by default)
             userService.create(userDTO, false);
 
         } catch (DuplicateEmailException e) {
-            // Handle duplicate email error
+            // Email already exists
             result.rejectValue("email", "error", "Email už existuje.");
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
             redirectAttributes.addFlashAttribute("userDTO", userDTO);
             return "redirect:/account/register";
 
         } catch (PasswordsDoNotEqualException e) {
-            // Handle passwords mismatch error
+            // Password and confirmPassword do not match
             result.rejectValue("password", "error", "Heslá sa nezhodujú.");
             result.rejectValue("confirmPassword", "error", "Heslá sa nezhodujú.");
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
@@ -87,8 +102,49 @@ public class AccountController {
             return "redirect:/account/register";
         }
 
-        // Registration successful
+        // Success - redirect to login
         redirectAttributes.addFlashAttribute("success", "Registrácia bola úspešná.");
         return "redirect:/account/login";
+    }
+
+    /**
+     * Displays the profile page for the logged-in user, including their reservations.
+     * Admins see all users and all reservations.
+     *
+     * @param userDetails The currently authenticated user.
+     * @param model       Model to pass user and reservation data to the view.
+     * @return The profile page view.
+     */
+    @GetMapping("/profile")
+    public String profile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+        String email = userDetails.getUsername();
+
+        // Fetch the user entity based on email
+        UserEntity user = userService.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Používateľ s e-mailom sa nenašiel: " + email));
+
+        model.addAttribute("user", user);
+
+        // Check if the user has ADMIN role
+        boolean isAdmin = user.getRoles().stream()
+                .anyMatch(role -> role.equals("ADMIN"));
+
+        // Fetch reservations based on role
+        List<ReservationDTO> reservations;
+        if (isAdmin) {
+            reservations = reservationService.findAll();
+        } else {
+            reservations = reservationService.findByUserEmail(email);
+        }
+
+        model.addAttribute("reservations", reservations);
+        model.addAttribute("isAdmin", isAdmin);
+
+        // If admin, show all users
+        if (isAdmin) {
+            model.addAttribute("allUsers", userRepository.findAll());
+        }
+
+        return "pages/account/profile";
     }
 }

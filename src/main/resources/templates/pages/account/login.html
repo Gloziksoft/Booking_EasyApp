@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html lang="sk" xmlns:th="http://www.thymeleaf.org">
-<head th:replace="~{fragments/layout.html :: head}"></head>
+<head th:replace="~{fragments/layout.html :: head}"><!-- Reusable head fragment --></head>
 
 <body class="d-flex flex-column min-vh-100">
-<header th:replace="~{fragments/layout.html :: header}"></header>
+<header th:replace="~{fragments/layout.html :: header}"><!-- Reusable header fragment --></header>
 
-<main role="main" class="flex-grow-1">
-    <div class="container" style="max-width: 400px; margin-top: 40px;">
+<div class="container" style="max-width: 400px; margin-top: 40px;">
 
-        <h2 class="text-center mb-4">Prihlásenie</h2>
+    <!-- Page title -->
+    <h2 class="text-center mb-4">Prihlásenie</h2>
 
-        <form th:action="@{/account/login}" method="post" novalidate>
+    <!-- Login form submitting to /account/login using POST -->
+    <form th:action="@{/account/login}" method="post" novalidate>
 
-            <div>
-                <label for="email">Email:</label>
-                <input type="text" id="email" name="email" autofocus="autofocus" required />
-            </div>
+        <!-- Email input field -->
+        <div>
+            <label for="email">Email:</label>
+            <input type="text" id="email" name="email" autofocus="autofocus" required/>
+        </div>
 
-            <div>
-                <label for="password">Heslo:</label>
-                <input type="password" id="password" name="password" required />
-            </div>
+        <!-- Password input field -->
+        <div>
+            <label for="password">Heslo:</label>
+            <input type="password" id="password" name="password" required/>
+        </div>
 
-            <div th:if="${param.error}">
-                <p style="color:red;">Nesprávny email alebo heslo.</p>
-            </div>
+        <!-- Error message displayed if login fails -->
+        <div th:if="${param.error}">
+            <p style="color:red;">Nesprávny email alebo heslo.</p>
+        </div>
 
-            <div th:if="${param.logout}">
-                <p style="color:green;">Úspešne ste sa odhlásili.</p>
-            </div>
+        <!-- Message displayed after successful logout -->
+        <div th:if="${param.logout}">
+            <p style="color:green;">Úspešne ste sa odhlásili.</p>
+        </div>
 
-            <div>
-                <button type="submit">Prihlásiť sa</button>
-            </div>
+        <!-- Submit button -->
+        <div>
+            <button class="login" type="submit">Prihlásiť sa</button>
+        </div>
 
-        </form>
+    </form>
 
-        <p class="text-center mt-3">
-            Nemáte účet? <a th:href="@{/account/register}">Registrujte sa</a>
-        </p>
+    <!-- Link to registration page -->
+    <p class="text-center mt-3">
+        Nemáte účet? <a th:href="@{/account/register}">Registrujte sa</a>
+    </p>
 
-    </div>
-</main>
+</div>
 
-<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+<footer th:replace="~{fragments/layout.html :: footer}"><!-- Reusable footer fragment --></footer>
 
 </body>
 </html>

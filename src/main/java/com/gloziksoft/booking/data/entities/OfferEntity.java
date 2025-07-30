@@ -1,47 +1,41 @@
-package com.gloziksoft.booking.data.entities;
+package com.gloziksoft.booking.models.entities;
 
 import com.gloziksoft.booking.data.enums.ServiceType;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
+/**
+ * JPA Entity representing an Offer stored in the database.
+ * Maps to the "offers" table.
+ */
 @Entity
-@Table(name = "reservations")
-public class ReservationEntity {
+@Table(name = "offers")
+public class OfferEntity {
 
     // Primary key with auto-increment strategy
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Title of the reservation
+    // Title of the offer
     private String title;
 
-    // Detailed description stored as a large text object
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    // Detailed description of the offer (up to 1000 characters)
+    @Column(length = 1000)
     private String description;
 
-    // Start date and time of the reservation
+    // Offer's start date and time
     private LocalDateTime startDateTime;
 
-    // End date and time of the reservation
+    // Offer's end date and time
     private LocalDateTime endDateTime;
 
-    // Many-to-one relationship to the user who made the reservation
-    // Fetch type is LAZY for performance optimization
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private UserEntity user;
-
-    // Service type for the reservation, stored as a string enum
-    // This field is required (not null)
-    @NotNull(message = "Service type is required.")
+    // Enum representing the service type (stored as STRING in DB)
     @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
-    // --- Getters and setters ---
+    // --- Getters & Setters ---
 
     public Long getId() {
         return id;
@@ -81,14 +75,6 @@ public class ReservationEntity {
 
     public void setEndDateTime(LocalDateTime endDateTime) {
         this.endDateTime = endDateTime;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
     }
 
     public ServiceType getServiceType() {

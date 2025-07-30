@@ -5,24 +5,28 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * Data Transfer Object (DTO) for User.
+ * Used to transfer user data between application layers.
+ * Includes validation annotations to ensure required fields and valid formats.
+ */
 @Getter
 @Setter
 public class UserDTO {
 
-    @NotBlank(message = "Meno je povinné")
+    @NotBlank(message = "First name is required")
     private String firstName;
 
-    @NotBlank(message = "Priezvisko je povinné")
+    @NotBlank(message = "Last name is required")
     private String lastName;
 
-    @Email(message = "Zadaj platný e-mail")
-    @NotBlank(message = "Email je povinný")
+    @Email(message = "Please enter a valid email address")
+    @NotBlank(message = "Email is required")
     private String email;
 
-    @NotBlank(message = "Heslo je povinné")
+    @NotBlank(message = "Password is required")
     private String password;
 
-    @NotBlank(message = "Potvrdenie hesla je povinné")
+    @NotBlank(message = "Password confirmation is required")
     private String confirmPassword;
 }
-

@@ -4,36 +4,38 @@ import jakarta.persistence.*;
 import java.util.Set;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users") // Maps this entity to the "users" table in the database
 public class UserEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY) // Auto-generates the primary key
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(unique = true, nullable = false) // Email must be unique and not null
     private String email;
 
-    @Column(nullable = false)
+    @Column(nullable = false) // Password must not be null
     private String password;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "first_name", nullable = false) // Maps to "first_name" column, not null
     private String firstName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "last_name", nullable = false) // Maps to "last_name" column, not null
     private String lastName;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id"))
-    @Column(name = "role")
+    @ElementCollection(fetch = FetchType.EAGER) // Stores a collection of roles eagerly
+    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id")) // Defines the join table for roles
+    @Column(name = "role") // Each entry in the set is stored in the "role" column
     private Set<String> roles;
 
+    /**
+     * Returns the full name of the user by concatenating first and last names.
+     */
     public String getFullName() {
         return firstName + " " + lastName;
     }
 
-
-    // Gettery a settery
+    // Getters and setters
 
     public Long getId() {
         return id;

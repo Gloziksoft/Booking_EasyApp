@@ -4,17 +4,20 @@
 
 <body class="d-flex flex-column min-vh-100">
 <header th:replace="~{fragments/layout.html :: header}"></header>
-<main>
-    <div class="container">
-        <h2>Moje rezervácie</h2>
-        <a class="btn btn-primary mb-3" th:href="@{/reservations/create}">Nová rezervácia</a>
 
+<div class="container my-4">
+    <h2>Moje rezervácie</h2>
+    <a class="btn btn-primary mb-3" th:href="@{/reservations/create}">Nová rezervácia</a>
+
+    <!-- Desktop view (table) -->
+    <div class="table-responsive d-none d-md-block">
         <table class="table table-striped">
             <thead>
             <tr>
                 <th>Názov</th>
                 <th>Začiatok</th>
                 <th>Koniec</th>
+                <th>Typ služby</th>
                 <th>Akcie</th>
             </tr>
             </thead>
@@ -23,18 +26,48 @@
                 <td th:text="${res.title}"></td>
                 <td th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></td>
                 <td th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></td>
+                <td th:text="${res.serviceType}">TYP</td>
                 <td>
-                    <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-sm btn-info">Detail</a>
-                    <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-sm btn-warning">Upraviť</a>
+                    <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-info">Detail</a>
+                    <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-warning">Upraviť</a>
                     <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline">
-                        <button type="submit" class="btn btn-sm btn-danger">Zmazať</button>
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Naozaj chcete zmazať?');">Zmazať
+                        </button>
                     </form>
                 </td>
             </tr>
             </tbody>
         </table>
     </div>
-</main>
+
+    <!-- Mobile view (cards) -->
+    <div class="d-md-none">
+        <div th:each="res : ${reservations}" class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title" th:text="${res.title}">Názov</h5>
+                <p class="card-text">
+                    <strong>Začiatok:</strong> <span
+                        th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                    <strong>Koniec:</strong> <span
+                        th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                    <strong>Typ služby:</strong> <span th:text="${res.serviceType}"></span>
+                </p>
+                <div>
+                    <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-sm btn-info me-1">Detail</a>
+                    <a th:href="@{'/reservations/edit/' + ${res.id}}"
+                       class="btn btn-sm btn-warning me-1">Upraviť</a>
+                    <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-sm btn-danger"
+                                onclick="return confirm('Naozaj chcete zmazať?');">Zmazať
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Pagination -->
 <div class="d-flex justify-content-center mt-4">
     <nav aria-label="Stránkovanie">
         <ul class="pagination">
@@ -56,6 +89,7 @@
         </ul>
     </nav>
 </div>
+
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>
 </body>
 </html>
