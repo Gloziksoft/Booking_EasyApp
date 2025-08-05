@@ -14,19 +14,19 @@ import lombok.Setter;
 @Setter
 public class UserDTO {
 
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "Meno musí byť zadané.")
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
+    @NotBlank(message = "Priezvisko musí byť zadané.")
     private String lastName;
 
-    @Email(message = "Please enter a valid email address")
-    @NotBlank(message = "Email is required")
+    @Email(message = "Zadajte platnú e-mailovú adresu.")
+    @NotBlank(message = "Email musí byť zadaný.")
     private String email;
 
-    @NotBlank(message = "Password is required")
+    @NotBlank(message = "Heslo musí byť zadamé.")
     private String password;
 
-    @NotBlank(message = "Password confirmation is required")
+    @NotBlank(message = "Potvrdenie hesla musí byť zadané.")
     private String confirmPassword;
 }

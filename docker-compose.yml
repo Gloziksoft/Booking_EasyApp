@@ -30,7 +30,7 @@ services:
 
 volumes:
   db_data:
-    external: false
+    external: true
 
 networks:
   app_network:
