@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/layout.html :: head}">
     <title>Profil užívateľa</title>
 </head>
 
 <header th:replace="~{fragments/layout.html :: header}"></header>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
 <div class="container my-5">
 
@@ -85,7 +85,6 @@
             </table>
         </div>
     </div>
-
 </div>
 
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>

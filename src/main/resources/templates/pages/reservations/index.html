@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<html lang="sk" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="~{fragments/layout.html :: head}"></head>
 
 <body class="d-flex flex-column min-vh-100">
@@ -7,9 +8,11 @@
 
 <div class="container my-4">
     <h2>Moje rezervácie</h2>
-    <a class="btn btn-primary mb-3" th:href="@{/reservations/create}">Nová rezervácia</a>
 
-    <!-- Desktop view (table) -->
+    <a class="btn btn-primary mb-3" th:href="@{/offers/create}" sec:authorize="hasRole('ADMIN')">Pridať novú ponuku</a>
+    <a class="btn btn-primary mb-3" th:href="@{/offers}" sec:authorize="isAuthenticated()">Pridať novú rezerváciu</a>
+
+    <!-- Desktop view -->
     <div class="table-responsive d-none d-md-block">
         <table class="table table-striped">
             <thead>
@@ -17,7 +20,7 @@
                 <th>Názov</th>
                 <th>Začiatok</th>
                 <th>Koniec</th>
-                <th>Typ služby</th>
+                <th>Ponuka</th>
                 <th>Akcie</th>
             </tr>
             </thead>
@@ -26,11 +29,13 @@
                 <td th:text="${res.title}"></td>
                 <td th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></td>
                 <td th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></td>
-                <td th:text="${res.serviceType}">TYP</td>
+                <td th:text="${res.offerName}">Ponuka</td>
                 <td>
                     <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-info">Detail</a>
-                    <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-warning">Upraviť</a>
-                    <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline">
+                    <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-warning"
+                       sec:authorize="isAuthenticated()">Upraviť</a>
+                    <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline"
+                          sec:authorize="isAuthenticated()">
                         <button type="submit" class="btn btn-sm btn-danger"
                                 onclick="return confirm('Naozaj chcete zmazať?');">Zmazať
                         </button>
@@ -41,23 +46,25 @@
         </table>
     </div>
 
-    <!-- Mobile view (cards) -->
+    <!-- Mobile view -->
     <div class="d-md-none">
         <div th:each="res : ${reservations}" class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title" th:text="${res.title}">Názov</h5>
                 <p class="card-text">
-                    <strong>Začiatok:</strong> <span
-                        th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
-                    <strong>Koniec:</strong> <span
-                        th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
-                    <strong>Typ služby:</strong> <span th:text="${res.serviceType}"></span>
+                    <strong>Začiatok:</strong>
+                    <span th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                    <strong>Koniec:</strong>
+                    <span th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                    <strong>Ponuka:</strong>
+                    <span th:text="${res.offerName}"></span>
                 </p>
                 <div>
                     <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-sm btn-info me-1">Detail</a>
-                    <a th:href="@{'/reservations/edit/' + ${res.id}}"
-                       class="btn btn-sm btn-warning me-1">Upraviť</a>
-                    <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline">
+                    <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-sm btn-warning me-1"
+                       sec:authorize="isAuthenticated()">Upraviť</a>
+                    <form th:action="@{'/reservations/delete/' + ${res.id}}" method="post" class="d-inline"
+                          sec:authorize="isAuthenticated()">
                         <button type="submit" class="btn btn-sm btn-danger"
                                 onclick="return confirm('Naozaj chcete zmazať?');">Zmazať
                         </button>
@@ -67,27 +74,28 @@
         </div>
     </div>
 </div>
-<!-- Pagination -->
-<div class="d-flex justify-content-center mt-4">
-    <nav aria-label="Stránkovanie">
-        <ul class="pagination">
-            <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/reservations(page=${currentPage - 1})}">Predošlá</a>
-            </li>
 
-            <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
-                th:classappend="${i == currentPage} ? 'active'">
-                <a class="page-link" th:href="@{/reservations(page=${i})}"
-                   th:text="${i + 1}">1</a>
-            </li>
+<div th:if="${totalPages > 0}">
+    <!-- Pagination -->
+    <div class="d-flex justify-content-center mt-4">
+        <nav aria-label="Stránkovanie">
+            <ul class="pagination">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/reservations(page=${currentPage - 1})}">Predošlá</a>
+                </li>
 
-            <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
-                <a class="page-link"
-                   th:href="@{/reservations(page=${currentPage + 1})}">Ďalšia</a>
-            </li>
-        </ul>
-    </nav>
+                <li class="page-item" th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${i == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/reservations(page=${i})}"
+                       th:text="${i + 1}">1</a>
+                </li>
+
+                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/reservations(page=${currentPage + 1})}">Ďalšia</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
 </div>
 
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>

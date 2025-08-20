@@ -1,5 +1,6 @@
 package com.gloziksoft.booking.data.entities;
 
+import com.gloziksoft.booking.data.enums.Role;
 import jakarta.persistence.*;
 import java.util.Set;
 
@@ -23,10 +24,9 @@ public class UserEntity {
     @Column(name = "last_name", nullable = false) // Maps to "last_name" column, not null
     private String lastName;
 
-    @ElementCollection(fetch = FetchType.EAGER) // Stores a collection of roles eagerly
-    @CollectionTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id")) // Defines the join table for roles
-    @Column(name = "role") // Each entry in the set is stored in the "role" column
-    private Set<String> roles;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
 
     /**
      * Returns the full name of the user by concatenating first and last names.
@@ -77,11 +77,11 @@ public class UserEntity {
         this.lastName = lastName;
     }
 
-    public Set<String> getRoles() {
-        return roles;
+    public Role getRole() {
+        return role;
     }
 
-    public void setRoles(Set<String> roles) {
-        this.roles = roles;
+    public void setRole(Role role) {
+        this.role = role;
     }
 }

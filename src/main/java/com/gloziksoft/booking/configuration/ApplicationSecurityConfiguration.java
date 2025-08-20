@@ -21,43 +21,51 @@ public class ApplicationSecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests()
-                // Restrict access to reservation-related paths to users with USER or ADMIN roles
+                // Rezervácie prístupné pre USER a ADMIN
                 .requestMatchers(
                         "/reservations",
-                        "/reservations/create",
                         "/reservations/create/**",
-                        "/reservations/detail/**",
                         "/reservations/edit/**",
                         "/reservations/delete/**"
                 ).hasAnyRole("USER", "ADMIN")
 
-                // Allow access to public resources and pages without authentication
+                // Ponuky prístupné iba pre ADMIN
+                .requestMatchers(
+                        "/offers/create",
+                        "/offers/create/**",
+                        "/offers/*/edit",
+                        "/offers/*/edit/**",
+                        "/offers/*/delete"
+                ).hasRole("ADMIN")
+
+                // Verejné cesty
                 .requestMatchers(
                         "/styles/**", "/scripts/**", "/images/**", "/fonts/**",
-                        "/", "/about-us", "/account/register", "/account/login",
-                        "/offers", "/offers/**",
+                        "/", "/about-us", "/account/register", "/account/login", "/account/forgot-password",
+                        "/reservations/detail/**",
+                        "/offers", "/offers/{id}", "/offers/{id}/reserve",
                         "/api/reservations/**"
                 ).permitAll()
 
-                // All other requests require authentication
+                // Všetko ostatné vyžaduje autentifikáciu
                 .anyRequest().authenticated()
 
                 .and()
                 .formLogin()
-                // Custom login page configuration
                 .loginPage("/account/login")
                 .loginProcessingUrl("/account/login")
                 .defaultSuccessUrl("/reservations", true)
-                .usernameParameter("email") // Use "email" as the username field
+                .usernameParameter("email")
                 .permitAll()
 
                 .and()
                 .logout()
-                // Custom logout behavior
                 .logoutUrl("/account/logout")
                 .logoutSuccessUrl("/")
                 .permitAll()
 
+                .and()
+                .anonymous() // Toto zabezpečí, že Thymeleaf pozná anonymného používateľa
                 .and()
                 .build();
     }

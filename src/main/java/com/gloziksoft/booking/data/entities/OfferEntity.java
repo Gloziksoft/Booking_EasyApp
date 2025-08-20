@@ -1,48 +1,56 @@
-package com.gloziksoft.booking.models.entities;
+package com.gloziksoft.booking.data.entities;
 
 import com.gloziksoft.booking.data.enums.ServiceType;
 import jakarta.persistence.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/**
- * JPA Entity representing an Offer stored in the database.
- * Maps to the "offers" table.
- */
+
 @Entity
 @Table(name = "offers")
 public class OfferEntity {
 
-    // Primary key with auto-increment strategy
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long Id;
 
-    // Title of the offer
+    @Column(nullable = false)
     private String title;
 
-    // Detailed description of the offer (up to 1000 characters)
     @Column(length = 1000)
     private String description;
 
-    // Offer's start date and time
-    private LocalDateTime startDateTime;
+    @Column(nullable = false)
+    private BigDecimal price;
 
-    // Offer's end date and time
-    private LocalDateTime endDateTime;
-
-    // Enum representing the service type (stored as STRING in DB)
     @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
-    // --- Getters & Setters ---
+    @Column(name = "start_date_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime startDateTime;
+
+    @Column(name = "end_date_time")
+    @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
+    private LocalDateTime endDateTime;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+    }
 
     public Long getId() {
-        return id;
+        return Id;
     }
 
     public void setId(Long id) {
-        this.id = id;
+        Id = id;
     }
 
     public String getTitle() {
@@ -61,20 +69,12 @@ public class OfferEntity {
         this.description = description;
     }
 
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
+    public BigDecimal getPrice() {
+        return price;
     }
 
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return endDateTime;
-    }
-
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
+    public void setPrice(BigDecimal price) {
+        this.price = price;
     }
 
     public ServiceType getServiceType() {
@@ -83,5 +83,18 @@ public class OfferEntity {
 
     public void setServiceType(ServiceType serviceType) {
         this.serviceType = serviceType;
+    }
+
+    public LocalDateTime getStartDateTime() { return startDateTime; }
+    public void setStartDateTime(LocalDateTime startDateTime) { this.startDateTime = startDateTime; }
+    public LocalDateTime getEndDateTime() { return endDateTime; }
+    public void setEndDateTime(LocalDateTime endDateTime) { this.endDateTime = endDateTime; }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
     }
 }

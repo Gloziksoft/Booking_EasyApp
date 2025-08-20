@@ -1,6 +1,7 @@
 package com.gloziksoft.booking.models.services;
 
 import com.gloziksoft.booking.data.entities.UserEntity;
+import com.gloziksoft.booking.data.enums.Role;
 import com.gloziksoft.booking.data.repositories.UserRepository;
 import com.gloziksoft.booking.models.dto.UserDTO;
 import com.gloziksoft.booking.models.exceptions.DuplicateEmailException;
@@ -75,6 +76,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setFirstName(userDTO.getFirstName());
         userEntity.setLastName(userDTO.getLastName());
         userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userEntity.setRole(isAdmin ? Role.ADMIN : Role.USER);
 
         Set<String> roles = new HashSet<>();
         if (isAdmin) {
@@ -82,8 +84,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else {
             roles.add("USER");
         }
-        userEntity.setRoles(roles);
-
         return userRepository.save(userEntity);
     }
 
@@ -100,9 +100,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         UserEntity user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
-        List<SimpleGrantedAuthority> authorities = user.getRoles().stream()
-                .map(role -> new SimpleGrantedAuthority("ROLE_" + role))
-                .collect(Collectors.toList());
+        List<SimpleGrantedAuthority> authorities = Collections.singletonList(
+                new SimpleGrantedAuthority("ROLE_" + user.getRole().name())
+        );
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

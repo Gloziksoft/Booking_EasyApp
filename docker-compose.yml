@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   db:
     image: mariadb
@@ -11,14 +10,14 @@ services:
       MARIADB_ROOT_PASSWORD: root
       MYSQL_DATABASE: booking_app
     volumes:
-      - db_data:/var/lib/mysql           # persistencia dát databázy
-      - ./db-init-scripts:/docker-entrypoint-initdb.d  # init skripty len pri prvom spustení
+      - db_data_booking:/var/lib/mysql
+      - ./db-init-scripts:/docker-entrypoint-initdb.d
     networks:
-      - app_network
+      - booking_network
 
   phpmyadmin:
     image: phpmyadmin
-    container_name: booking_app
+    container_name: booking_phpmyadmin
     restart: always
     ports:
       - "8082:80"
@@ -26,13 +25,13 @@ services:
       PMA_HOST: db
       PMA_PORT: 3306
     networks:
-      - app_network
+      - booking_network
 
 volumes:
-  db_data:
-    external: true
+  db_data_booking:
+    external: false
 
 networks:
-  app_network:
+  booking_network:
     driver: bridge
 

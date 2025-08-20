@@ -56,12 +56,18 @@
                     </li>
 
                     <!-- Dropdown menu 'Rezervácie' for managing reservations -->
+                    <!-- Dropdown menu 'Rezervácie' for managing reservations -->
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" id="rezervacieDropdown" role="button"
                            data-bs-toggle="dropdown" aria-expanded="false">Rezervácie</a>
                         <ul class="dropdown-menu" aria-labelledby="rezervacieDropdown">
                             <li><a class="dropdown-item" th:href="@{/reservations}">Zoznam Rezervácií</a></li>
-                            <li><a class="dropdown-item" th:href="@{/reservations/create}">Nová rezervácia</a></li>
+
+                            <!-- Tlačidlo 'Nová rezervácia' viditeľné iba adminom -->
+                            <li sec:authorize="hasRole('ADMIN')">
+                                <a class="dropdown-item" th:href="@{/reservations/create}">Nová rezervácia</a>
+                            </li>
+
                             <li><a class="dropdown-item" th:href="@{/api/reservations}">Kalendár</a></li>
                         </ul>
                     </li>
@@ -108,7 +114,9 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                             <li><a class="dropdown-item" th:href="@{/account/profile}">Profil</a></li>
-                            <li><hr class="dropdown-divider"/></li>
+                            <li>
+                                <hr class="dropdown-divider"/>
+                            </li>
                             <li>
                                 <!-- Logout form -->
                                 <form method="post" th:action="@{/account/logout}" class="d-inline">

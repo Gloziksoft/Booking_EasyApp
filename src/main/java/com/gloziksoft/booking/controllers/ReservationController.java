@@ -1,9 +1,12 @@
 package com.gloziksoft.booking.controllers;
 
-import com.gloziksoft.booking.data.enums.ServiceType;
+import com.gloziksoft.booking.data.entities.OfferEntity;
+import com.gloziksoft.booking.data.entities.UserEntity;
 import com.gloziksoft.booking.models.dto.ReservationDTO;
+import com.gloziksoft.booking.models.services.OfferService;
 import com.gloziksoft.booking.models.services.ReservationService;
-import jakarta.validation.Valid;
+import com.gloziksoft.booking.models.services.UserService;
+import com.gloziksoft.booking.models.dto.mappers.OfferMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.validation.Valid;
 import java.util.NoSuchElementException;
 
 @Controller
@@ -25,30 +29,27 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
 
-    /**
-     * Lists reservations with pagination.
-     * Admin users see all reservations, others see only their own.
-     *
-     * @param model model to pass data to the view
-     * @param user authenticated user
-     * @param page current page number (default 0)
-     * @param size number of reservations per page (default 4)
-     * @return reservations listing page
-     */
+    @Autowired
+    private OfferService offerService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private OfferMapper offerMapper;
+
+    // --- LIST ---
     @GetMapping
-    public String listReservations(
-            Model model,
-            @AuthenticationPrincipal User user,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "4") int size) {
+    public String listReservations(Model model,
+                                   @AuthenticationPrincipal User user,
+                                   @RequestParam(defaultValue = "0") int page,
+                                   @RequestParam(defaultValue = "4") int size) {
 
         Pageable pageable = PageRequest.of(page, size);
+        Page<ReservationDTO> reservationPage;
 
-        // Check if user has admin role
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        Page<ReservationDTO> reservationPage;
 
         if (isAdmin) {
             reservationPage = reservationService.findAll(pageable);
@@ -59,119 +60,112 @@ public class ReservationController {
         model.addAttribute("reservations", reservationPage.getContent());
         model.addAttribute("currentPage", reservationPage.getNumber());
         model.addAttribute("totalPages", reservationPage.getTotalPages());
+        model.addAttribute("isAdmin", isAdmin);
 
         return "pages/reservations/index";
     }
 
-    /**
-     * Shows the form for creating a new reservation.
-     *
-     * @param model model to pass data to the view
-     * @return create reservation page
-     */
-    @GetMapping("/create")
-    public String createForm(Model model) {
-        model.addAttribute("reservation", new ReservationDTO());
-        model.addAttribute("serviceTypes", ServiceType.values());
-        return "pages/reservations/create";
-    }
-
-    /**
-     * Handles creation of a new reservation.
-     *
-     * @param reservationDTO data submitted by user
-     * @param user authenticated user
-     * @return redirect to reservations listing
-     */
-    @PostMapping("/create")
-    public String create(
-            @Valid @ModelAttribute("reservation") ReservationDTO reservationDTO,
-            BindingResult bindingResult,
-            @AuthenticationPrincipal User user,
-            Model model) {
+    // --- CREATE FROM OFFER (POST) ---
+    @PostMapping
+    public String createReservation(@Valid @ModelAttribute("reservation") ReservationDTO reservationDTO,
+                                    BindingResult bindingResult,
+                                    Model model,
+                                    @AuthenticationPrincipal User user) {
 
         if (bindingResult.hasErrors()) {
-            // If validation errors exist, return the form with error messages and service types
-            model.addAttribute("serviceTypes", ServiceType.values());
-            return "pages/reservations/create"; // Thymeleaf form view
+            model.addAttribute("offer", offerService.findById(reservationDTO.getOfferId()));
+            return "pages/offers/reserve";
         }
 
-        // Save reservation if validation passes
-        reservationService.create(reservationDTO, user.getUsername());
+        UserEntity userEntity = userService.findByEmail(user.getUsername())
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
 
-        return "redirect:/reservations";
+        OfferEntity offerEntity = offerService.findEntityById(reservationDTO.getOfferId());
+
+        reservationDTO.setTitle(offerEntity.getTitle());
+        reservationDTO.setDescription(offerEntity.getDescription());
+        reservationDTO.setServiceType(offerEntity.getServiceType());
+
+
+        reservationService.create(reservationDTO, userEntity, offerEntity);
+        return "redirect:/offers";
     }
 
-    /**
-     * Shows the form for editing an existing reservation.
-     *
-     * @param id reservation id
-     * @param model model to pass data to the view
-     * @return edit reservation page
-     */
+    // --- EDIT FORM ---
     @GetMapping("/edit/{id}")
-    public String editForm(@PathVariable Long id, Model model) {
-        model.addAttribute("reservation", reservationService.findById(id));
-        model.addAttribute("serviceTypes", ServiceType.values());
+    public String editForm(@PathVariable Long id,
+                           Model model,
+                           @AuthenticationPrincipal User user) {
+
+        ReservationDTO reservation = reservationService.findById(id);
+        boolean isAdmin = user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !reservation.getUserEmail().equals(user.getUsername())) {
+            return "redirect:/reservations?error=not-authorized";
+        }
+
+        model.addAttribute("reservation", reservation);
+        model.addAttribute("offers", offerService.findAll());
+        model.addAttribute("offer", offerService.findById(reservation.getOfferId()));
         return "pages/reservations/edit";
     }
 
-    /**
-     * Handles updating an existing reservation.
-     *
-     * @param id reservation id
-     * @param reservationDTO updated reservation data
-     * @return redirect to reservations listing
-     */
+    // --- UPDATE ---
     @PostMapping("/edit/{id}")
-    public String update(
-            @PathVariable Long id,
-            @Valid @ModelAttribute("reservation") ReservationDTO reservationDTO,
-            BindingResult bindingResult,
-            Model model) {
+    public String update(@PathVariable Long id,
+                         @Valid @ModelAttribute("reservation") ReservationDTO reservationDTO,
+                         BindingResult bindingResult,
+                         Model model,
+                         @AuthenticationPrincipal User user) {
 
+        // Ak sú chyby vo validácii, vrátime edit stránku
         if (bindingResult.hasErrors()) {
-            // Return form with errors and service types if validation fails
-            model.addAttribute("serviceTypes", ServiceType.values());
+            model.addAttribute("offers", offerService.findAll());
             return "pages/reservations/edit";
         }
 
+        // --- Ošetrenie vlastníctva ---
+        ReservationDTO existing = reservationService.findById(id);
+        boolean isAdmin = user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !existing.getUserEmail().equals(user.getUsername())) {
+            // Ak používateľ nie je admin a rezervácia nie je jeho, blokujeme
+            return "redirect:/reservations?error=not-authorized";
+        }
+
+        // Update cez service
         reservationService.update(id, reservationDTO);
 
         return "redirect:/reservations";
     }
 
-    /**
-     * Displays details of a reservation.
-     *
-     * @param id reservation id
-     * @param model model to pass data to the view
-     * @return reservation detail page
-     */
+    // --- DETAIL ---
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("reservation", reservationService.findById(id));
         return "pages/reservations/detail";
     }
 
-    /**
-     * Handles deletion of a reservation.
-     *
-     * @param id reservation id
-     * @return redirect to reservations listing
-     */
+    // --- DELETE ---
     @PostMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(@PathVariable Long id,
+                         @AuthenticationPrincipal User user) {
+
+        ReservationDTO reservation = reservationService.findById(id);
+        boolean isAdmin = user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!isAdmin && !reservation.getUserEmail().equals(user.getUsername())) {
+            return "redirect:/reservations?error=not-authorized";
+        }
+
         reservationService.delete(id);
         return "redirect:/reservations";
     }
 
-    /**
-     * Handles cases where a reservation is not found.
-     *
-     * @param redirectAttributes attributes to pass error message on redirect
-     * @return redirect to reservations listing with error message
-     */
+    // --- EXCEPTION HANDLER ---
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error", "Reservation not found.");

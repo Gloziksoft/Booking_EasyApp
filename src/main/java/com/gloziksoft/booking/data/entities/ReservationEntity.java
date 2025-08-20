@@ -10,92 +10,44 @@ import java.time.LocalDateTime;
 @Table(name = "reservations")
 public class ReservationEntity {
 
-    // Primary key with auto-increment strategy
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    // Title of the reservation
     private String title;
+    private LocalDateTime startDateTime;
+    private LocalDateTime endDateTime;
 
-    // Detailed description stored as a large text object
     @Lob
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    // Start date and time of the reservation
-    private LocalDateTime startDateTime;
-
-    // End date and time of the reservation
-    private LocalDateTime endDateTime;
-
-    // Many-to-one relationship to the user who made the reservation
-    // Fetch type is LAZY for performance optimization
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
 
-    // Service type for the reservation, stored as a string enum
-    // This field is required (not null)
     @NotNull(message = "Service type is required.")
     @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
-    // --- Getters and setters ---
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "offer_id", nullable = false)
+    private OfferEntity offer;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public LocalDateTime getStartDateTime() {
-        return startDateTime;
-    }
-
-    public void setStartDateTime(LocalDateTime startDateTime) {
-        this.startDateTime = startDateTime;
-    }
-
-    public LocalDateTime getEndDateTime() {
-        return endDateTime;
-    }
-
-    public void setEndDateTime(LocalDateTime endDateTime) {
-        this.endDateTime = endDateTime;
-    }
-
-    public UserEntity getUser() {
-        return user;
-    }
-
-    public void setUser(UserEntity user) {
-        this.user = user;
-    }
-
-    public ServiceType getServiceType() {
-        return serviceType;
-    }
-
-    public void setServiceType(ServiceType serviceType) {
-        this.serviceType = serviceType;
-    }
+    // --- Getters & Setters ---
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+    public String getTitle() { return title; }
+    public void setTitle(String title) { this.title = title; }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+    public LocalDateTime getStartDateTime() { return startDateTime; }
+    public void setStartDateTime(LocalDateTime startDateTime) { this.startDateTime = startDateTime; }
+    public LocalDateTime getEndDateTime() { return endDateTime; }
+    public void setEndDateTime(LocalDateTime endDateTime) { this.endDateTime = endDateTime; }
+    public UserEntity getUser() { return user; }
+    public void setUser(UserEntity user) { this.user = user; }
+    public ServiceType getServiceType() { return serviceType; }
+    public void setServiceType(ServiceType serviceType) { this.serviceType = serviceType; }
+    public OfferEntity getOffer() { return offer; }
+    public void setOffer(OfferEntity offer) { this.offer = offer; }
 }

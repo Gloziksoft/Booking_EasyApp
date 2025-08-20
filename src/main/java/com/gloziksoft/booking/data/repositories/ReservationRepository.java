@@ -9,35 +9,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-/**
- * Repository interface for managing ReservationEntity persistence.
- * Extends JpaRepository to provide basic CRUD operations.
- */
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
 
-    /**
-     * Finds all reservations made by a specific user.
-     *
-     * @param user the user entity to filter by
-     * @return list of reservations belonging to the user
-     */
+    // Hľadanie podľa celého objektu UserEntity
     List<ReservationEntity> findByUser(UserEntity user);
-
-    /**
-     * Finds reservations by user with pagination support.
-     *
-     * @param user     the user entity to filter by
-     * @param pageable pagination information
-     * @return page of reservations for the given user
-     */
     Page<ReservationEntity> findByUser(UserEntity user, Pageable pageable);
 
-    /**
-     * Finds reservations filtered by service type with pagination.
-     *
-     * @param serviceType the type of service to filter by
-     * @param pageable    pagination information
-     * @return page of reservations matching the service type
-     */
-    Page<ReservationEntity> findByServiceType(ServiceType serviceType, Pageable pageable);
+    // Hľadanie podľa serviceType
+    Page<ReservationEntity> findAllByServiceType(ServiceType serviceType, Pageable pageable);
+
+    // Prípadne ďalšie metódy, napr. podľa userId
+    List<ReservationEntity> findByUserId(Long userId);
+    Page<ReservationEntity> findByUserId(Long userId, Pageable pageable);
 }

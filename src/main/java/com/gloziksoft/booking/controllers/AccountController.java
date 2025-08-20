@@ -1,6 +1,7 @@
 package com.gloziksoft.booking.controllers;
 
 import com.gloziksoft.booking.data.entities.UserEntity;
+import com.gloziksoft.booking.data.enums.Role;
 import com.gloziksoft.booking.data.repositories.UserRepository;
 import com.gloziksoft.booking.models.dto.ReservationDTO;
 import com.gloziksoft.booking.models.dto.UserDTO;
@@ -126,8 +127,8 @@ public class AccountController {
         model.addAttribute("user", user);
 
         // Check if the user has ADMIN role
-        boolean isAdmin = user.getRoles().stream()
-                .anyMatch(role -> role.equals("ADMIN"));
+        boolean isAdmin = user.getRole() == Role.ADMIN;
+
 
         // Fetch reservations based on role
         List<ReservationDTO> reservations;
@@ -146,5 +147,16 @@ public class AccountController {
         }
 
         return "pages/account/profile";
+    }
+
+    @GetMapping("/forgot-password")
+    public String forgotPasswordForm(Model model) {
+        return "pages/account/forgot-password";
+    }
+
+    @PostMapping("/forgot-password")
+    public String forgotPasswordSubmit(@RequestParam String email, Model model) {
+        model.addAttribute("message", "Ak účet existuje, poslali sme ti inštrukcie na email.");
+        return "pages/account/forgot-password";
     }
 }

@@ -29,4 +29,5 @@ public class UserDTO {
 
     @NotBlank(message = "Potvrdenie hesla musí byť zadané.")
     private String confirmPassword;
+
 }
