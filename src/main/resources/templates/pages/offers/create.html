@@ -45,11 +45,12 @@
             <label class="form-label">Typ služby</label>
             <select class="form-control" th:field="*{serviceType}" required>
                 <option value="" disabled selected>-- Vyber typ služby --</option>
-                <option th:each="type : ${T(com.gloziksoft.booking.data.enums.ServiceType).values()}"
+                <option th:each="type : ${serviceTypes}"
                         th:value="${type}" th:text="${type.displayName}"></option>
             </select>
             <p th:if="${#fields.hasErrors('serviceType')}" th:errors="*{serviceType}" class="text-danger"></p>
         </div>
+
 
 <!--        <form th:action="@{/offers/create}" method="post" th:object="${offer}" enctype="multipart/form-data">-->
 <!--            <div class="mb-3">-->

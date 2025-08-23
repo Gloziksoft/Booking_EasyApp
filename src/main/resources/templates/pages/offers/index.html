@@ -49,7 +49,7 @@
                             </a>
 
                             <a class="btn btn-success btn-sm flex-grow-1 flex-md-grow-0"
-                               th:href="@{/offers/{id}/reserve(id=${offer.id})}"
+                               th:href="@{reservations/{id}/reserve(id=${offer.id})}"
                                sec:authorize="isAuthenticated()">
                                 Rezervovať
                             </a>
