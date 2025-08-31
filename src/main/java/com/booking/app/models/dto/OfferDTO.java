@@ -2,13 +2,11 @@ package com.booking.app.models.dto;
 
 import com.booking.app.data.enums.ServiceType;
 import jakarta.validation.constraints.NotNull;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class OfferDTO {
 
-    private Long id;
     private Long offerId;
     private String title;
     private String description;
@@ -16,16 +14,13 @@ public class OfferDTO {
     private ServiceType serviceType;
     private LocalDateTime createdAt;
 
-    // Polia pre zobrazenie časového obdobia ponuky
     @NotNull(message = "Dátum začiatku rezervácie je povinný.")
     private LocalDateTime startDateTime;
+
     @NotNull(message = "Dátum ukončenia rezervácie je povinný.")
     private LocalDateTime endDateTime;
 
     // --- Getters & Setters ---
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
-
     public Long getOfferId() { return offerId; }
     public void setOfferId(Long offerId) { this.offerId = offerId; }
 

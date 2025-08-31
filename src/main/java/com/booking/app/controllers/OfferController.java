@@ -2,11 +2,8 @@ package com.booking.app.controllers;
 
 import com.booking.app.data.enums.ServiceType;
 import com.booking.app.models.dto.OfferDTO;
-import com.booking.app.models.dto.ReservationDTO;
 import com.booking.app.models.services.OfferService;
-import com.booking.app.models.services.email.EmailService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Controller;
@@ -15,15 +12,19 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Controller
 @RequestMapping("/offers")
 public class OfferController {
 
-    @Autowired
-    private OfferService offerService;
+    private final OfferService offerService;
 
+    public OfferController(OfferService offerService) {
+        this.offerService = offerService;
+    }
+
+    // --- LIST ---
     @GetMapping
     public String listOffers(Model model,
                              @RequestParam(defaultValue = "0") int page,
@@ -43,23 +44,20 @@ public class OfferController {
         return "pages/offers/index";
     }
 
+    // --- DETAIL ---
     @GetMapping("/{id}")
-    public String offerDetail(@PathVariable Long id, Model model) {
+    public String offerDetail(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         OfferDTO offer = offerService.findById(id);
         if (offer == null) {
+            redirectAttributes.addFlashAttribute("error", "Offer not found");
             return "redirect:/offers";
         }
-
-        ReservationDTO reservation = new ReservationDTO();
-        reservation.setOfferId(id);
-        reservation.setTitle(offer.getTitle());
-        reservation.setDescription(offer.getDescription());
-        reservation.setServiceType(offer.getServiceType());
 
         model.addAttribute("offer", offer);
         return "pages/offers/detail";
     }
 
+    // --- CREATE ---
     @GetMapping("/create")
     public String createOfferForm(Model model) {
         model.addAttribute("offer", new OfferDTO());
@@ -68,24 +66,25 @@ public class OfferController {
     }
 
     @PostMapping("/create")
-    public String createOfferSubmit(@ModelAttribute("offer") OfferDTO offerDTO) {
+    public String createOfferSubmit(@Valid @ModelAttribute("offer") OfferDTO offerDTO,
+                                    BindingResult bindingResult,
+                                    Model model) {
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("serviceTypes", ServiceType.values());
+            return "pages/offers/create";
+        }
+
         offerService.create(offerDTO);
         return "redirect:/offers";
     }
 
+    // --- EDIT ---
     @GetMapping("/{id}/edit")
-    public String editOfferForm(@PathVariable Long id, Model model) {
+    public String editOfferForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         OfferDTO offer = offerService.findById(id);
         if (offer == null) {
+            redirectAttributes.addFlashAttribute("error", "Offer not found");
             return "redirect:/offers";
-        }
-
-        // Ak sú dátumy null, nastavíme predvolené hodnoty
-        if (offer.getStartDateTime() == null) {
-            offer.setStartDateTime(LocalDateTime.now());
-        }
-        if (offer.getEndDateTime() == null) {
-            offer.setEndDateTime(LocalDateTime.now().plusHours(1));
         }
 
         model.addAttribute("offer", offer);
@@ -93,32 +92,25 @@ public class OfferController {
         return "pages/offers/edit";
     }
 
-
     @PostMapping("/{id}/edit")
     public String editOfferSubmit(@PathVariable Long id,
                                   @Valid @ModelAttribute("offer") OfferDTO offerDTO,
                                   BindingResult bindingResult,
-                                  Model model) {
+                                  Model model) { // <-- pridané
         if (bindingResult.hasErrors()) {
             model.addAttribute("serviceTypes", ServiceType.values());
             return "pages/offers/edit";
         }
 
-        offerDTO.setId(id);
         offerService.update(id, offerDTO);
         return "redirect:/offers/" + id;
     }
 
-
+    // --- DELETE ---
     @PostMapping("/{id}/delete")
-    public String deleteOffer(@PathVariable Long id) {
+    public String deleteOffer(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         offerService.delete(id);
-        return "redirect:/offers";
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public String handleInvalidReservation(IllegalArgumentException ex, RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        redirectAttributes.addFlashAttribute("message", "Offer deleted successfully");
         return "redirect:/offers";
     }
 }

@@ -4,6 +4,7 @@ import com.booking.app.data.enums.ServiceType;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -13,13 +14,20 @@ public class ReservationEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String title;
+
+    @NotNull(message = "Dátum začiatku rezervácie je povinný.")
+    @Column(name = "start_date_time")
     private LocalDateTime startDateTime;
+
+    @NotNull(message = "Dátum ukončenia rezervácie je povinný.")
+    @Column(name = "end_date_time")
     private LocalDateTime endDateTime;
 
-    @Lob
-    @Column(columnDefinition = "TEXT")
+    @Column(length = 1000)
     private String description;
+
+    @NotNull(message = "Cena je povinná.")
+    private BigDecimal price;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -36,18 +44,31 @@ public class ReservationEntity {
     // --- Getters & Setters ---
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+
     public LocalDateTime getStartDateTime() { return startDateTime; }
     public void setStartDateTime(LocalDateTime startDateTime) { this.startDateTime = startDateTime; }
+
     public LocalDateTime getEndDateTime() { return endDateTime; }
     public void setEndDateTime(LocalDateTime endDateTime) { this.endDateTime = endDateTime; }
+
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
     public UserEntity getUser() { return user; }
     public void setUser(UserEntity user) { this.user = user; }
+
     public ServiceType getServiceType() { return serviceType; }
     public void setServiceType(ServiceType serviceType) { this.serviceType = serviceType; }
+
     public OfferEntity getOffer() { return offer; }
     public void setOffer(OfferEntity offer) { this.offer = offer; }
 }
+

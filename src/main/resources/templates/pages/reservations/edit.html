@@ -5,55 +5,61 @@
 <body class="d-flex flex-column min-vh-100">
 <header th:replace="~{fragments/layout.html :: header}"></header>
 
-<div class="container">
+<div class="container my-4">
     <h2>Upraviť rezerváciu</h2>
 
     <form th:action="@{/reservations/edit/{id}(id=${reservation.id})}" th:object="${reservation}" method="post">
-        <!-- Title -->
+
+        <!-- Ponuka (readonly pre usera, editable pre admina) -->
         <div class="mb-3">
-            <label class="form-label">Názov</label>
-            <input class="form-control" th:field="*{title}" required/>
-            <small class="text-danger" th:errors="*{title}"></small>
+            <label class="form-label">Ponuka</label>
+            <input type="text" class="form-control" th:value="${reservation.offerName}" readonly
+                   th:if="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <input type="text" class="form-control" th:field="*{offerName}"
+                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <input type="hidden" th:field="*{offerId}"/>
+            <small class="text-danger" th:errors="*{offerName}"></small>
         </div>
 
-        <!-- Description -->
+        <!-- Popis -->
         <div class="mb-3">
             <label class="form-label">Popis</label>
-            <textarea class="form-control" th:field="*{description}"></textarea>
+            <textarea class="form-control" rows="3" th:text="${reservation.description}" readonly
+                      th:if="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"></textarea>
+            <textarea class="form-control" th:field="*{description}" rows="3"
+                      th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"></textarea>
             <small class="text-danger" th:errors="*{description}"></small>
         </div>
 
-        <!-- Start DateTime -->
+        <!-- Cena -->
+        <div class="mb-3">
+            <label class="form-label">Cena (€)</label>
+            <input type="text" class="form-control" th:value="${reservation.price}" readonly
+                   th:if="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <input type="number" step="0.01" class="form-control" th:field="*{price}"
+                   th:if="${#authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <small class="text-danger" th:errors="*{price}"></small>
+        </div>
+
+        <!-- Začiatok rezervácie -->
         <div class="mb-3">
             <label class="form-label">Začiatok</label>
             <input type="datetime-local" class="form-control" th:field="*{startDateTime}"
-                   th:attr="min=${#temporals.format(offer.startDateTime, 'yyyy-MM-dd''T''HH:mm')},
-                            max=${#temporals.format(offer.endDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
+                   th:attr="min=${#temporals.format(reservation.offerStartDateTime, 'yyyy-MM-dd''T''HH:mm')},
+                            max=${#temporals.format(reservation.offerEndDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
             <small class="text-danger" th:errors="*{startDateTime}"></small>
         </div>
 
-        <!-- End DateTime -->
+        <!-- Koniec rezervácie -->
         <div class="mb-3">
             <label class="form-label">Koniec</label>
             <input type="datetime-local" class="form-control" th:field="*{endDateTime}"
-                   th:attr="min=${#temporals.format(offer.startDateTime, 'yyyy-MM-dd''T''HH:mm')},
-                            max=${#temporals.format(offer.endDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
+                   th:attr="min=${#temporals.format(reservation.offerStartDateTime, 'yyyy-MM-dd''T''HH:mm')},
+                            max=${#temporals.format(reservation.offerEndDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
             <small class="text-danger" th:errors="*{endDateTime}"></small>
         </div>
 
-        <!-- Offer Selection -->
-        <div class="mb-3">
-            <label class="form-label">Ponuka</label>
-            <select class="form-control" th:field="*{offerId}">
-                <option th:each="o : ${offers}"
-                        th:value="${o.id}"
-                        th:text="${o.title}"
-                        th:selected="${o.id == reservation.offerId}">
-                </option>
-            </select>
-            <small class="text-danger" th:errors="*{offerId}"></small>
-        </div>
-
+        <!-- Tlačidlá -->
         <button type="submit" class="btn btn-success">Uložiť</button>
         <a th:href="@{/reservations}" class="btn btn-secondary">Späť</a>
     </form>

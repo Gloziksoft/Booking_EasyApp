@@ -9,7 +9,6 @@
 <div class="container my-4">
     <h2>Moje rezervácie</h2>
 
-    <a class="btn btn-primary mb-3" th:href="@{/offers/create}" sec:authorize="hasRole('ADMIN')">Pridať novú ponuku</a>
     <a class="btn btn-primary mb-3" th:href="@{/offers}" sec:authorize="isAuthenticated()">Pridať novú rezerváciu</a>
 
     <!-- Desktop view -->
@@ -17,19 +16,17 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Názov</th>
+                <th>Ponuka</th>
                 <th>Začiatok</th>
                 <th>Koniec</th>
-                <th>Ponuka</th>
                 <th>Akcie</th>
             </tr>
             </thead>
             <tbody>
             <tr th:each="res : ${reservations}">
-                <td th:text="${res.title}"></td>
+                <td th:text="${res.offerName}"></td>
                 <td th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></td>
                 <td th:text="${#temporals.format(res.endDateTime, 'dd.MM.yyyy HH:mm')}"></td>
-                <td th:text="${res.offerName}">Ponuka</td>
                 <td>
                     <a th:href="@{'/reservations/detail/' + ${res.id}}" class="btn btn-info">Detail</a>
                     <a th:href="@{'/reservations/edit/' + ${res.id}}" class="btn btn-warning"
@@ -50,7 +47,7 @@
     <div class="d-md-none">
         <div th:each="res : ${reservations}" class="card mb-3">
             <div class="card-body">
-                <h5 class="card-title" th:text="${res.title}">Názov</h5>
+                <h5 class="card-title" th:text="${res.offerName}">Názov</h5>
                 <p class="card-text">
                     <strong>Začiatok:</strong>
                     <span th:text="${#temporals.format(res.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>

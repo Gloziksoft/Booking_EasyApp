@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -56,21 +57,22 @@ public class OfferServiceImpl implements OfferService {
         OfferEntity entity = offerMapper.toEntity(dto);
         entity.setStartDateTime(dto.getStartDateTime());
         entity.setEndDateTime(dto.getEndDateTime());
-        entity.setCreatedAt(java.time.LocalDateTime.now());
+        entity.setCreatedAt(LocalDateTime.now());
+
         offerRepository.save(entity);
     }
 
     @Override
-    public void update(Long id, OfferDTO dto) {
-        OfferEntity entity = offerRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Offer with ID " + id + " not found"));
-        entity.setTitle(dto.getTitle());
-        entity.setDescription(dto.getDescription());
-        entity.setPrice(dto.getPrice());
-        entity.setServiceType(dto.getServiceType());
-        entity.setStartDateTime(dto.getStartDateTime());
-        entity.setEndDateTime(dto.getEndDateTime());
-        offerRepository.save(entity);
+    public void update(Long id, OfferDTO offerDTO) {
+        OfferEntity existing = offerRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
+
+        LocalDateTime originalCreatedAt = existing.getCreatedAt();
+
+        offerMapper.updateOfferEntity(offerDTO, existing);
+        existing.setCreatedAt(originalCreatedAt);
+
+        offerRepository.save(existing);
     }
 
     @Override

@@ -29,21 +29,24 @@ import java.util.NoSuchElementException;
 @RequestMapping("/reservations")
 public class ReservationController {
 
-    @Autowired
-    private ReservationService reservationService;
-
-    @Autowired
-    private OfferService offerService;
-
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private OfferMapper offerMapper;
-
+    private final ReservationService reservationService;
+    private final OfferService offerService;
+    private final UserService userService;
+    private final OfferMapper offerMapper;
     private final EmailService emailService;
 
-    // --- LIST ---
+    public ReservationController(ReservationService reservationService,
+                                 OfferService offerService,
+                                 UserService userService,
+                                 OfferMapper offerMapper,
+                                 EmailService emailService) {
+        this.reservationService = reservationService;
+        this.offerService = offerService;
+        this.userService = userService;
+        this.offerMapper = offerMapper;
+        this.emailService = emailService;
+    }
+
     @GetMapping
     public String listReservations(Model model,
                                    @AuthenticationPrincipal User user,
@@ -56,11 +59,9 @@ public class ReservationController {
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (isAdmin) {
-            reservationPage = reservationService.findAll(pageable);
-        } else {
-            reservationPage = reservationService.findByUserEmail(user.getUsername(), pageable);
-        }
+        reservationPage = isAdmin
+                ? reservationService.findAll(pageable)
+                : reservationService.findByUserEmail(user.getUsername(), pageable);
 
         model.addAttribute("reservations", reservationPage.getContent());
         model.addAttribute("currentPage", reservationPage.getNumber());
@@ -70,11 +71,6 @@ public class ReservationController {
         return "pages/reservations/index";
     }
 
-    public ReservationController(EmailService emailService) {
-        this.emailService = emailService;
-    }
-
-    // --- RESERVE FORM ---
     @GetMapping("/{id}/reserve")
     public String reserveOffer(@PathVariable Long id,
                                Model model,
@@ -104,27 +100,33 @@ public class ReservationController {
         return "redirect:/reservations/" + reservationDTO.getOfferId() + "/reserve";
     }
 
-    // --- EDIT FORM ---
+
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id,
                            Model model,
                            @AuthenticationPrincipal User user) {
 
+        // Načítať rezerváciu
         ReservationDTO reservation = reservationService.findById(id);
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (!isAdmin && !reservation.getUserEmail().equals(user.getUsername())) {
+        // Overenie oprávnenia
+        if (!reservationService.edit(reservation, user)) {
             return "redirect:/reservations?error=not-authorized";
         }
 
+        // Načítať ponuku, aby sme vedeli nastaviť prednastavené dátumy
+        OfferDTO offer = offerService.findById(reservation.getOfferId());
+        reservation.setOfferStartDateTime(offer.getStartDateTime());
+        reservation.setOfferEndDateTime(offer.getEndDateTime());
+
+        // Pridať do modelu
         model.addAttribute("reservation", reservation);
         model.addAttribute("offers", offerService.findAll());
-        model.addAttribute("offer", offerService.findById(reservation.getOfferId()));
+        model.addAttribute("offer", offer);
+
         return "pages/reservations/edit";
     }
 
-    // --- UPDATE ---
     @PostMapping("/edit/{id}")
     public String update(@PathVariable Long id,
                          @Valid @ModelAttribute("reservation") ReservationDTO reservationDTO,
@@ -132,53 +134,30 @@ public class ReservationController {
                          Model model,
                          @AuthenticationPrincipal User user) {
 
-        // Ak sú chyby vo validácii, vrátime edit stránku
         if (bindingResult.hasErrors()) {
             model.addAttribute("offers", offerService.findAll());
             return "pages/reservations/edit";
         }
 
-        // --- Ošetrenie vlastníctva ---
-        ReservationDTO existing = reservationService.findById(id);
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!isAdmin && !existing.getUserEmail().equals(user.getUsername())) {
-            // Ak používateľ nie je admin a rezervácia nie je jeho, blokujeme
-            return "redirect:/reservations?error=not-authorized";
-        }
-
-        // Update cez service
-        reservationService.update(id, reservationDTO);
+        reservationService.update(id, reservationDTO, user);
 
         return "redirect:/reservations";
     }
 
-    // --- DETAIL ---
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         model.addAttribute("reservation", reservationService.findById(id));
         return "pages/reservations/detail";
     }
 
-    // --- DELETE ---
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id,
                          @AuthenticationPrincipal User user) {
 
-        ReservationDTO reservation = reservationService.findById(id);
-        boolean isAdmin = user.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-
-        if (!isAdmin && !reservation.getUserEmail().equals(user.getUsername())) {
-            return "redirect:/reservations?error=not-authorized";
-        }
-
-        reservationService.delete(id);
+        reservationService.delete(id, user);
         return "redirect:/reservations";
     }
 
-    // --- EXCEPTION HANDLER ---
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(RedirectAttributes redirectAttributes) {
         redirectAttributes.addFlashAttribute("error", "Reservation not found.");

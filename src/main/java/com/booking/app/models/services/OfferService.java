@@ -24,6 +24,5 @@ public interface OfferService {
 
     Page<OfferDTO> findAllByServiceType(ServiceType serviceType, Pageable pageable);
 
-    // Nová metóda, ktorá vráti entitu
     OfferEntity findEntityById(Long id);
 }

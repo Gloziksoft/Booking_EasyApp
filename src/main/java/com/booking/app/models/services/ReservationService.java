@@ -29,9 +29,11 @@ public interface ReservationService {
 
     OfferEntity getOfferById(Long offerId);
 
-    void update(Long id, ReservationDTO updatedDto);
+    boolean edit(ReservationDTO reservation, org.springframework.security.core.userdetails.User user);
 
-    void delete(Long id);
+    void update(Long id, ReservationDTO updatedDto, org.springframework.security.core.userdetails.User user);
+
+    void delete(Long id, org.springframework.security.core.userdetails.User user);
 
     List<ReservationDTO> findByUserEmail(String email);
 

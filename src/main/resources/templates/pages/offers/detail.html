@@ -2,37 +2,42 @@
 <html lang="sk" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
 <head th:replace="~{fragments/layout.html :: head}"></head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 <header th:replace="~{fragments/layout.html :: header}"></header>
 
-<div class="container my-4">
-    <h2 th:text="${offer.title}">Detail ponuky</h2>
+<div class="container my-5">
 
-    <div class="card my-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h3 class="mb-0" th:text="${offer.title}">Názov ponuky</h3>
+        </div>
         <div class="card-body">
-            <h5 class="card-title" th:text="${offer.title}"></h5>
-            <p class="card-text" th:text="${offer.description}"></p>
-<!--             <div class="col-md-4" th:if="${offer.imageUrl != null}">-->
-<!--                <img th:src="${offer.imageUrl}" class="img-fluid rounded-start" alt="Obrázok ponuky">-->
-<!--            </div>-->
+            <h5 class="card-title">Popis</h5>
+            <p class="card-text" th:text="${offer.description}">Detailný popis ponuky...</p>
 
-
-            <h6>Podrobnosti:</h6>
-            <ul class="list-unstyled">
-                <li><strong>Cena:</strong> <span th:text="${offer.price} + ' €'"></span></li>
-                <li><strong>Typ služby:</strong> <span th:text="${offer.serviceType.displayName}"></span></li>
-                <li><strong>Vytvorené:</strong> <span
-                        th:text="${#temporals.format(offer.createdAt, 'dd.MM.yyyy HH:mm')}"></span></li>
-                <li><strong>Začiatok rezervácie:</strong> <span
-                        th:text="${#temporals.format(offer.startDateTime, 'dd.MM.yyyy HH:mm')}"></span></li>
-                <li><strong>Koniec rezervácie:</strong> <span
-                        th:text="${#temporals.format(offer.endDateTime, 'dd.MM.yyyy HH:mm')}"></span></li>
+            <h5 class="mt-4">Podrobnosti</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item"><strong>Cena:</strong> <span th:text="${offer.price} + ' €'">0 €</span></li>
+                <li class="list-group-item"><strong>Typ služby:</strong> <span
+                        th:text="${offer.serviceType.displayName}">Typ služby</span></li>
+                <li class="list-group-item"><strong>Vytvorené:</strong> <span
+                        th:text="${#temporals.format(offer.createdAt, 'dd.MM.yyyy HH:mm')}">01.01.2025 12:00</span></li>
+                <li class="list-group-item"><strong>Začiatok rezervácie:</strong> <span
+                        th:text="${#temporals.format(offer.startDateTime, 'dd.MM.yyyy HH:mm')}">01.09.2025 10:00</span>
+                </li>
+                <li class="list-group-item"><strong>Koniec rezervácie:</strong> <span
+                        th:text="${#temporals.format(offer.endDateTime, 'dd.MM.yyyy HH:mm')}">08.09.2025 10:00</span>
+                </li>
             </ul>
+        </div>
+        <div class="card-footer d-flex justify-content-between">
+            <a th:href="@{/offers}" class="btn btn-outline-secondary">Späť na ponuky</a>
+            <a sec:authorize="isAuthenticated()"
+               th:href="@{'/reservations/' + ${offer.id} + '/reserve'}"
+               class="btn btn-success">Rezervovať</a>
         </div>
     </div>
 
-    <a th:href="@{/offers}" class="btn btn-secondary">Späť na ponuky</a>
-    <a sec:authorize="isAuthenticated()" th:href="@{'/offers/' + ${offer.id} + '/reserve'}" class="btn btn-success">Rezervovať</a>
 </div>
 
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>

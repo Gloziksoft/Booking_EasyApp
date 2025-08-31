@@ -2,26 +2,49 @@
 <html lang="sk" xmlns:th="http://www.thymeleaf.org">
 <head th:replace="~{fragments/layout.html :: head}"></head>
 
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100 bg-light">
 
 <header th:replace="~{fragments/layout.html :: header}"></header>
 
 <main class="container my-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="card-title mb-4" th:text="${reservation.title}">Názov rezervácie</h2>
-            <p class="card-text"><strong>Popis:</strong> <span th:text="${reservation.description}">Popis</span></p>
-            <p class="card-text"><strong>Začiatok:</strong> <span
-                    th:text="${#temporals.format(reservation.startDateTime, 'dd.MM.yyyy HH:mm')}">00.00.0000</span></p>
-            <p class="card-text"><strong>Koniec:</strong> <span
-                    th:text="${#temporals.format(reservation.endDateTime, 'dd.MM.yyyy HH:mm')}">00.00.0000</span></p>
-            <p class="card-text"><strong>Ponuka:</strong> <span th:text="${reservation.offerName}">Ponuka</span></p>
 
-            <a th:href="@{/reservations}" class="btn btn-secondary mt-3">
+    <div class="card shadow-sm border-0">
+        <div class="card-header bg-primary text-white">
+            <h2 class="mb-0" th:text="${reservation.offerName}">Názov ponuky</h2>
+        </div>
+
+        <div class="card-body">
+            <h5 class="card-title">Popis</h5>
+            <p class="card-text" th:text="${reservation.description}">Popis rezervácie...</p>
+
+            <h5 class="mt-4">Podrobnosti rezervácie</h5>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item">
+                    <strong>Začiatok rezervácie:</strong>
+                    <span th:text="${#temporals.format(reservation.startDateTime, 'dd.MM.yyyy HH:mm')}">01.09.2025 10:00</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Koniec rezervácie:</strong>
+                    <span th:text="${#temporals.format(reservation.endDateTime, 'dd.MM.yyyy HH:mm')}">08.09.2025 10:00</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Cena:</strong>
+                    <span th:text="${reservation.price} + ' €'">199 €</span>
+                </li>
+                <li class="list-group-item">
+                    <strong>Typ služby:</strong>
+                    <span th:text="${reservation.serviceType.displayName}">Romantický víkend</span>
+                </li>
+            </ul>
+        </div>
+
+        <div class="card-footer d-flex justify-content-start">
+            <a th:href="@{/reservations}" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left"></i> Späť
             </a>
         </div>
     </div>
+
 </main>
 
 <footer th:replace="~{fragments/layout.html :: footer}"></footer>
