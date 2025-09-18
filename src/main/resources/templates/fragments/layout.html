@@ -60,7 +60,7 @@
                         <ul class="dropdown-menu" aria-labelledby="rezervacieDropdown">
                             <li><a class="dropdown-item" th:href="@{/reservations}">Zoznam rezervácií</a></li>
                             <li sec:authorize="hasRole('ADMIN')">
-                                <a class="dropdown-item" th:href="@{/reservations/create}">Nová rezervácia</a>
+                                <a class="dropdown-item" th:href="@{/offers}">Nová rezervácia</a>
                             </li>
                             <li><a class="dropdown-item" th:href="@{/api/reservations}">Kalendár</a></li>
                             <li><a class="dropdown-item" th:href="@{/reservations/history}">Archív rezervácií</a></li>

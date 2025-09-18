@@ -55,10 +55,13 @@ public class OfferServiceImpl implements OfferService {
     @Override
     public void create(OfferDTO dto) {
         OfferEntity entity = offerMapper.toEntity(dto);
+
+        // nastavenie dátumov a vytvorenia
         entity.setStartDateTime(dto.getStartDateTime());
         entity.setEndDateTime(dto.getEndDateTime());
         entity.setCreatedAt(LocalDateTime.now());
 
+        // tags sú mapované cez OfferMapper automaticky
         offerRepository.save(entity);
     }
 
@@ -69,6 +72,7 @@ public class OfferServiceImpl implements OfferService {
 
         LocalDateTime originalCreatedAt = existing.getCreatedAt();
 
+        // mapovanie nových hodnôt vrátane tags
         offerMapper.updateOfferEntity(offerDTO, existing);
         existing.setCreatedAt(originalCreatedAt);
 

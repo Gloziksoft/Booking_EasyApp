@@ -1,9 +1,12 @@
 package com.booking.app.models.dto;
 
 import com.booking.app.data.enums.ServiceType;
+import com.booking.app.data.enums.OfferTag;
 import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 public class OfferDTO {
 
@@ -12,12 +15,13 @@ public class OfferDTO {
     private String description;
     private BigDecimal price;
     private ServiceType serviceType;
+    private Set<OfferTag> tags = new HashSet<>();
     private LocalDateTime createdAt;
 
-    @NotNull(message = "Dátum začiatku rezervácie je povinný.")
+    @NotNull(message = "Dátum začiatku služby je povinný.")
     private LocalDateTime startDateTime;
 
-    @NotNull(message = "Dátum ukončenia rezervácie je povinný.")
+    @NotNull(message = "Dátum ukončenia služby je povinný.")
     private LocalDateTime endDateTime;
 
     // --- Getters & Setters ---
@@ -35,6 +39,9 @@ public class OfferDTO {
 
     public ServiceType getServiceType() { return serviceType; }
     public void setServiceType(ServiceType serviceType) { this.serviceType = serviceType; }
+
+    public Set<OfferTag> getTags() { return tags; }
+    public void setTags(Set<OfferTag> tags) { this.tags = tags; }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

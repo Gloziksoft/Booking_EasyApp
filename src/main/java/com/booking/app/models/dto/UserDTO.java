@@ -2,6 +2,7 @@ package com.booking.app.models.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -24,10 +25,12 @@ public class UserDTO {
     @NotBlank(message = "Email musí byť zadaný.")
     private String email;
 
-    @NotBlank(message = "Heslo musí byť zadamé.")
+    @NotBlank(message = "Heslo je povinné.")
+    @Size(min = 1, message = "Heslo musí mať aspoň 6 znakov.")
     private String password;
 
-    @NotBlank(message = "Potvrdenie hesla musí byť zadané.")
+    @NotBlank(message = "Potvrdenie hesla je povinné.")
+    @Size(min = 1, message = "Potvrdené heslo musí mať aspoň 6 znakov.")
     private String confirmPassword;
 
 }

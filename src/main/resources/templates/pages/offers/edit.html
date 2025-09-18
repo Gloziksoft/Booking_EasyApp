@@ -40,7 +40,9 @@
             <label for="serviceType" class="form-label">Typ služby</label>
             <select id="serviceType" th:field="*{serviceType}" class="form-select"
                     th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
-                <option th:each="type : ${serviceTypes}" th:value="${type}" th:text="${type}"></option>
+                <option th:each="type : ${T(com.booking.app.data.enums.ServiceType).values()}"
+                        th:value="${type}" th:text="${type.displayName}"
+                        th:selected="${type} == ${offer.serviceType}"></option>
             </select>
             <small class="text-danger" th:errors="*{serviceType}"></small>
         </div>
@@ -67,6 +69,20 @@
                    class="form-control"
                    th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
             <small class="text-danger" th:errors="*{endDateTime}"></small>
+        </div>
+
+        <!-- Doplnkové tagy (OfferTag) -->
+        <div class="mb-3">
+            <label class="form-label">Vlastnosti ponuky</label>
+            <div th:each="tag : ${T(com.booking.app.data.enums.OfferTag).values()}" class="form-check">
+                <input class="form-check-input" type="checkbox"
+                       th:id="${tag.name()}"
+                       th:value="${tag}"
+                       th:field="*{tags}"
+                       th:checked="${offer.tags != null} ? ${offer.tags.contains(tag)} : false"
+                       th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <label class="form-check-label" th:for="${tag.name()}" th:text="${tag.displayName}"></label>
+            </div>
         </div>
 
         <!-- Tlačidlá -->

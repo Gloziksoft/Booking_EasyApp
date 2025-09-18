@@ -1,28 +1,31 @@
 package com.booking.app.models.dto;
 
+import com.booking.app.data.enums.AdditionalService;
 import com.booking.app.data.enums.ServiceType;
+import com.booking.app.data.enums.OfferTag;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.format.annotation.DateTimeFormat;
-
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public class ReservationDTO {
 
     private Long id;
 
-    // User info (len dát na zobrazenie, bez entity reference)
     private Long userId;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
 
-    // Offer info (len dát na zobrazenie)
     @NotNull(message = "Ponuka je povinná.")
     private Long offerId;
     private String offerName;
     private BigDecimal price;
     private ServiceType serviceType;
+    private Set<OfferTag> tags;
+
+    private Set<AdditionalService> additionalServices;
     private String description;
 
     @NotNull(message = "Dátum začiatku rezervácie je povinný.")
@@ -33,12 +36,15 @@ public class ReservationDTO {
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime endDateTime;
 
-    // --- Ponukové dátumy na prednastavenie a obmedzenie pre bežného užívateľa ---
+    // Prednastavené dátumy ponuky
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime offerStartDateTime;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime offerEndDateTime;
+
+    private Integer adults = 1;
+    private Integer children = 0;
 
     // --- Getters & Setters ---
     public Long getId() { return id; }
@@ -68,6 +74,9 @@ public class ReservationDTO {
     public ServiceType getServiceType() { return serviceType; }
     public void setServiceType(ServiceType serviceType) { this.serviceType = serviceType; }
 
+    public Set<OfferTag> getTags() { return tags; }
+    public void setTags(Set<OfferTag> tags) { this.tags = tags; }
+
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
@@ -82,4 +91,23 @@ public class ReservationDTO {
 
     public LocalDateTime getOfferEndDateTime() { return offerEndDateTime; }
     public void setOfferEndDateTime(LocalDateTime offerEndDateTime) { this.offerEndDateTime = offerEndDateTime; }
+
+    public Set<AdditionalService> getAdditionalServices() {
+        return additionalServices;
+    }
+
+    public void setAdditionalServices(Set<AdditionalService> additionalServices) {
+        this.additionalServices = additionalServices;
+    }
+
+    public Integer getAdults() {
+        return adults;
+    }
+
+    public void setAdults(Integer adults) {
+        this.adults = adults;
+    }
+
+    public Integer getChildren() { return children; }
+    public void setChildren(Integer children) { this.children = children; }
 }

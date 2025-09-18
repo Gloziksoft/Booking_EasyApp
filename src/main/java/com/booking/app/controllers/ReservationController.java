@@ -85,7 +85,7 @@ public class ReservationController {
         return "pages/reservations/reserve";
     }
 
-    @PostMapping
+    @PostMapping("/{id}/reserve")
     public String createReservation(@ModelAttribute("reservation") ReservationDTO reservationDTO,
                                     @AuthenticationPrincipal User user,
                                     RedirectAttributes redirectAttributes) {
@@ -94,10 +94,10 @@ public class ReservationController {
                 .orElseThrow(() -> new NoSuchElementException("User not found"));
         OfferEntity offerEntity = offerService.findEntityById(reservationDTO.getOfferId());
 
-        reservationService.create(reservationDTO, userEntity, offerEntity);
+        ReservationDTO createdReservation = reservationService.create(reservationDTO, userEntity, offerEntity);
 
         redirectAttributes.addFlashAttribute("message", "Potvrdenie rezervácie sme poslali na váš email.");
-        return "redirect:/reservations/" + reservationDTO.getOfferId() + "/reserve";
+        return "redirect:/reservations/detail/" + createdReservation.getId();
     }
 
 
@@ -146,7 +146,8 @@ public class ReservationController {
 
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
-        model.addAttribute("reservation", reservationService.findById(id));
+        ReservationDTO reservation = reservationService.findById(id);
+        model.addAttribute("reservation", reservation);
         return "pages/reservations/detail";
     }
 

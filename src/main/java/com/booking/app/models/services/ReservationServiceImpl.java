@@ -3,10 +3,12 @@ package com.booking.app.models.services;
 import com.booking.app.data.entities.OfferEntity;
 import com.booking.app.data.entities.ReservationEntity;
 import com.booking.app.data.entities.UserEntity;
+import com.booking.app.data.enums.OfferTag;
 import com.booking.app.data.repositories.OfferRepository;
 import com.booking.app.data.repositories.ReservationRepository;
 import com.booking.app.data.repositories.UserRepository;
 import com.booking.app.models.dto.ReservationDTO;
+import com.booking.app.models.dto.mappers.OfferMapper;
 import com.booking.app.models.dto.mappers.ReservationMapper;
 import com.booking.app.data.enums.ServiceType;
 import com.booking.app.models.services.email.EmailService;
@@ -16,8 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +29,8 @@ public class ReservationServiceImpl implements ReservationService {
     private final OfferRepository offerRepository;
     private final ReservationMapper reservationMapper;
     private final EmailService emailService;
+    private final OfferMapper offerMapper;
+
 
     @Value("${app.admin.email}")
     private String adminEmail;
@@ -36,12 +39,14 @@ public class ReservationServiceImpl implements ReservationService {
                                   UserRepository userRepository,
                                   OfferRepository offerRepository,
                                   ReservationMapper reservationMapper,
-                                  EmailService emailService) {
+                                  EmailService emailService,
+                                  OfferMapper offerMapper) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
         this.reservationMapper = reservationMapper;
         this.emailService = emailService;
+        this.offerMapper = offerMapper;
     }
 
     // --- Helper metódy ---
@@ -88,11 +93,24 @@ public class ReservationServiceImpl implements ReservationService {
                 .collect(Collectors.toList());
     }
 
-    @Override
     public ReservationDTO findById(Long id) {
-        ReservationEntity entity = reservationRepository.findById(id)
+        ReservationEntity reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
-        return mapToDto(entity);
+
+        ReservationDTO dto = reservationMapper.toDTO(reservation);
+
+        OfferEntity offerEntity = reservation.getOffer();
+        if (offerEntity != null) {
+            dto.setOfferId(offerEntity.getId());
+            dto.setOfferName(offerEntity.getTitle());
+            dto.setPrice(offerEntity.getPrice());
+            dto.setServiceType(offerEntity.getServiceType());
+            dto.setDescription(offerEntity.getDescription());
+            dto.setTags(new HashSet<>(offerEntity.getTags()));
+            dto.setOfferStartDateTime(offerEntity.getStartDateTime());
+            dto.setOfferEndDateTime(offerEntity.getEndDateTime());
+        }
+        return dto;
     }
 
     @Override
@@ -119,6 +137,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public ReservationDTO prepareReservation(Long offerId, String userEmail) {
         OfferEntity offer = getOfferByIdInternal(offerId);
+
         ReservationDTO dto = new ReservationDTO();
         dto.setOfferId(offerId);
         dto.setDescription(offer.getDescription());
@@ -127,6 +146,12 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setEndDateTime(offer.getEndDateTime());
         dto.setUserEmail(userEmail);
         dto.setPrice(offer.getPrice());
+        dto.setAdults(2);
+        dto.setChildren(0);
+
+        // namiesto booleanov nastavíme prázdny set alebo defaultné služby
+        dto.setAdditionalServices(new HashSet<>());
+
         return dto;
     }
 
@@ -136,22 +161,34 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public void create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
+    public ReservationDTO create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
         if (dto.getStartDateTime().isBefore(offer.getStartDateTime()) ||
                 dto.getEndDateTime().isAfter(offer.getEndDateTime())) {
             throw new IllegalArgumentException("Reservation dates must be within the offer period.");
         }
 
-        ReservationEntity reservation = reservationMapper.toEntity(dto);
+        ReservationEntity reservation = new ReservationEntity();
         reservation.setUser(user);
         reservation.setOffer(offer);
         reservation.setServiceType(offer.getServiceType());
         reservation.setDescription(offer.getDescription());
+        reservation.setStartDateTime(dto.getStartDateTime());
+        reservation.setEndDateTime(dto.getEndDateTime());
         reservation.setPrice(offer.getPrice());
+        reservation.setAdditionalServices(dto.getAdditionalServices() != null ? dto.getAdditionalServices() : Set.of());
+
+        reservation.setTags(
+                dto.getTags() != null ? new HashSet<>(dto.getTags()) : new HashSet<>(offer.getTags())
+        );
+        reservation.setAdults(dto.getAdults());
+        reservation.setChildren(dto.getChildren());
 
         reservationRepository.save(reservation);
         sendConfirmationEmailsAsync(user.getEmail(), adminEmail);
+
+        return reservationMapper.toDTO(reservation);
     }
+
 
     @Override
     public boolean edit(ReservationDTO reservation, org.springframework.security.core.userdetails.User user) {
@@ -160,44 +197,52 @@ public class ReservationServiceImpl implements ReservationService {
         return isAdmin || reservation.getUserEmail().equals(user.getUsername());
     }
 
+    @Override
     public void update(Long id, ReservationDTO updatedDto, org.springframework.security.core.userdetails.User user) {
-        ReservationDTO existing = findById(id);
-        if (!edit(existing, user)) {
+        ReservationEntity reservation = reservationRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
+
+        if (!edit(reservationMapper.toDTO(reservation), user)) {
             throw new SecurityException("Not authorized to edit this reservation.");
         }
 
-        ReservationEntity entity = reservationRepository.findById(id)
-                .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
+        OfferEntity offer = offerRepository.findById(updatedDto.getOfferId())
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
+        reservation.setOffer(offer);
 
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        // Update entity from DTO (without offer/user)
-        reservationMapper.updateReservationEntity(updatedDto, entity);
-
-        // Nastavenie offer a user
-        OfferEntity offer = offerRepository.findById(updatedDto.getOfferId())
-                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
-        entity.setOffer(offer);
-
-        UserEntity userEntity = entity.getUser(); // user sa nemení
-        entity.setUser(userEntity);
-
-        // Admin môže meniť cenu, popis, typ služby
         if (isAdmin) {
-            entity.setPrice(updatedDto.getPrice());
-            entity.setDescription(updatedDto.getDescription());
-            entity.setServiceType(updatedDto.getServiceType());
+            reservation.setPrice(Optional.ofNullable(updatedDto.getPrice()).orElse(offer.getPrice()));
+            reservation.setDescription(Optional.ofNullable(updatedDto.getDescription()).orElse(offer.getDescription()));
+            reservation.setServiceType(Optional.ofNullable(updatedDto.getServiceType()).orElse(offer.getServiceType()));
+            reservation.setStartDateTime(updatedDto.getStartDateTime());
+            reservation.setEndDateTime(updatedDto.getEndDateTime());
+
+            // novinka: set additional services
+            reservation.setAdditionalServices(
+                    updatedDto.getAdditionalServices() != null ? new HashSet<>(updatedDto.getAdditionalServices()) : new HashSet<>()
+            );
+
+            Set<OfferTag> updatedTags = updatedDto.getTags() != null ? updatedDto.getTags() : Set.of();
+            reservation.getTags().retainAll(updatedTags);
+            reservation.getTags().addAll(updatedTags);
         } else {
-            // user nemôže meniť cenu/popis, použijeme pôvodné hodnoty z Offer
-            entity.setPrice(offer.getPrice());
-            entity.setDescription(offer.getDescription());
-            entity.setServiceType(offer.getServiceType());
+            reservation.setPrice(offer.getPrice());
+            reservation.setDescription(offer.getDescription());
+            reservation.setServiceType(offer.getServiceType());
+            reservation.setTags(new HashSet<>(offer.getTags()));
+            reservation.setAdditionalServices(updatedDto.getAdditionalServices() != null ? updatedDto.getAdditionalServices() : Set.of());
+            reservation.setStartDateTime(updatedDto.getStartDateTime());
+            reservation.setEndDateTime(updatedDto.getEndDateTime());
         }
 
-        reservationRepository.save(entity);
-    }
+        reservation.setAdults(updatedDto.getAdults());
+        reservation.setChildren(updatedDto.getChildren());
 
+        reservationRepository.save(reservation);
+    }
 
     @Override
     public void delete(Long id, org.springframework.security.core.userdetails.User user) {

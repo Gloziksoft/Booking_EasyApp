@@ -1,24 +1,26 @@
-    package com.booking.app.data.enums;
+package com.booking.app.data.enums;
 
-    /**
-     * Enum representing different types of services available in the booking system.
-     */
-    public enum ServiceType {
-        UBYTOVANIE("Ubytovanie"), // Accommodation
-        PARKOVANIE("Parkovanie"), // Parking
-        DOPRAVA("Doprava"),       // Transport
-        STRAVOVANIE("Stravovanie");// Catering / Food services
+/**
+ * Enum representing main types of services available in the booking system.
+ */
+public enum ServiceType {
+    ROMANTICKY_VIKEND("Romantický víkend"),
+    WELLNESS_VIKEND("Wellness víkend"),
+    GASTRONOMICKY_POBYT("Gastronomický pobyt"),
+    KULTURNY_POBYT("Kultúrny pobyt"),
+    AKTIVNY_ODPOCINOK("Aktívny oddych"),
+    RODINNY_POBYT("Rodinný pobyt"),
+    FIREMNY_TEAMBULDING("Firemný teambuilding"),
+    LUXUSNY_POBYT("Luxusný pobyt"),
+    LAST_MINUTE("Last minute ponuka");
 
-        // Human-readable name for each service type (used in UI)
-        private final String displayName;
+    private final String displayName;
 
-        // Constructor to initialize the display name
-        ServiceType(String displayName) {
-            this.displayName = displayName;
-        }
-
-        // Getter for the display name
-        public String getDisplayName() {
-            return displayName;
-        }
+    ServiceType(String displayName) {
+        this.displayName = displayName;
     }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+}
