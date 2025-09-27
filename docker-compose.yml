@@ -1,36 +1,35 @@
 version: '3.8'
 services:
   db:
-    image: mariadb
-    container_name: mariadb_container_booking_app
+    image: postgres:17
+    container_name: postgres_container_booking_app
     restart: always
     ports:
-      - "3307:3306"
+      - "5433:5432"
     environment:
-      MARIADB_ROOT_PASSWORD: root
-      MYSQL_DATABASE: booking_app
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: booking_app  # databáza sa vytvorí pri prvom spustení
     volumes:
-      - db_data_booking:/var/lib/mysql
+      - db_data_booking:/var/lib/postgresql/data
       - ./db-init-scripts:/docker-entrypoint-initdb.d
     networks:
       - booking_network
-
-  phpmyadmin:
-    image: phpmyadmin
-    container_name: booking_phpmyadmin
+      
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: booking_pgadmin
     restart: always
     ports:
       - "8082:80"
     environment:
-      PMA_HOST: db
-      PMA_PORT: 3306
+      PGADMIN_DEFAULT_EMAIL: peto7724@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: root
     networks:
       - booking_network
 
 volumes:
-  db_data_booking:
-    external: false
-
+  db_data_booking: {}
 networks:
   booking_network:
     driver: bridge
