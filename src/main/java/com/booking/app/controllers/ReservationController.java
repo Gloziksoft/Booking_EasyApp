@@ -4,12 +4,13 @@ import com.booking.app.data.entities.OfferEntity;
 import com.booking.app.data.entities.UserEntity;
 import com.booking.app.models.dto.OfferDTO;
 import com.booking.app.models.dto.ReservationDTO;
+import com.booking.app.models.dto.mappers.OfferMapper;
+import com.booking.app.models.exceptions.ReservationNotFoundException;
 import com.booking.app.models.services.OfferService;
 import com.booking.app.models.services.ReservationService;
 import com.booking.app.models.services.UserService;
-import com.booking.app.models.dto.mappers.OfferMapper;
 import com.booking.app.models.services.email.EmailService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,8 +21,6 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-
-import jakarta.validation.Valid;
 
 import java.util.NoSuchElementException;
 
@@ -76,10 +75,11 @@ public class ReservationController {
                                Model model,
                                @AuthenticationPrincipal User user) {
         OfferDTO offer = offerService.findById(id);
-        if (offer == null) return "redirect:/offers";
+        if (offer == null) {
+            throw new ReservationNotFoundException("Offer not found with id " + id);
+        }
 
         ReservationDTO reservation = reservationService.prepareReservation(id, user.getUsername());
-
         model.addAttribute("reservation", reservation);
         model.addAttribute("offer", offer);
         return "pages/reservations/reserve";
@@ -91,7 +91,7 @@ public class ReservationController {
                                     RedirectAttributes redirectAttributes) {
 
         UserEntity userEntity = userService.findByEmail(user.getUsername())
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
+                .orElseThrow(() -> new ReservationNotFoundException("User not found"));
         OfferEntity offerEntity = offerService.findEntityById(reservationDTO.getOfferId());
 
         ReservationDTO createdReservation = reservationService.create(reservationDTO, userEntity, offerEntity);
@@ -100,26 +100,24 @@ public class ReservationController {
         return "redirect:/reservations/detail/" + createdReservation.getId();
     }
 
-
     @GetMapping("/edit/{id}")
     public String editForm(@PathVariable Long id,
                            Model model,
                            @AuthenticationPrincipal User user) {
 
-        // Načítať rezerváciu
         ReservationDTO reservation = reservationService.findById(id);
+        if (reservation == null) {
+            throw new ReservationNotFoundException("Reservation not found with id " + id);
+        }
 
-        // Overenie oprávnenia
         if (!reservationService.edit(reservation, user)) {
             return "redirect:/reservations?error=not-authorized";
         }
 
-        // Načítať ponuku, aby sme vedeli nastaviť prednastavené dátumy
         OfferDTO offer = offerService.findById(reservation.getOfferId());
         reservation.setOfferStartDateTime(offer.getStartDateTime());
         reservation.setOfferEndDateTime(offer.getEndDateTime());
 
-        // Pridať do modelu
         model.addAttribute("reservation", reservation);
         model.addAttribute("offers", offerService.findAll());
         model.addAttribute("offer", offer);
@@ -140,13 +138,15 @@ public class ReservationController {
         }
 
         reservationService.update(id, reservationDTO, user);
-
         return "redirect:/reservations";
     }
 
     @GetMapping("/detail/{id}")
     public String detail(@PathVariable Long id, Model model) {
         ReservationDTO reservation = reservationService.findById(id);
+        if (reservation == null) {
+            throw new ReservationNotFoundException("Reservation not found with id " + id);
+        }
         model.addAttribute("reservation", reservation);
         return "pages/reservations/detail";
     }
@@ -154,14 +154,13 @@ public class ReservationController {
     @PostMapping("/delete/{id}")
     public String delete(@PathVariable Long id,
                          @AuthenticationPrincipal User user) {
-
         reservationService.delete(id, user);
         return "redirect:/reservations";
     }
 
-    @ExceptionHandler(NoSuchElementException.class)
-    public String handleNotFound(RedirectAttributes redirectAttributes) {
-        redirectAttributes.addFlashAttribute("error", "Reservation not found.");
-        return "redirect:/reservations";
-    }
+//    @ExceptionHandler(NoSuchElementException.class)
+//    public String handleNotFound(RedirectAttributes redirectAttributes) {
+//        redirectAttributes.addFlashAttribute("error", "Reservation not found.");
+//        return "redirect:/reservations";
+//    }
 }
