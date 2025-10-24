@@ -216,7 +216,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public void update(Long id, ReservationDTO updatedDto, org.springframework.security.core.userdetails.User user) {
+    public void update(Long id, ReservationDTO dto, org.springframework.security.core.userdetails.User user) {
         ReservationEntity reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
 
@@ -224,26 +224,30 @@ public class ReservationServiceImpl implements ReservationService {
             throw new SecurityException("Not authorized to edit this reservation.");
         }
 
-        OfferEntity offer = offerRepository.findById(updatedDto.getOfferId())
+        OfferEntity offer = offerRepository.findById(dto.getOfferId())
                 .orElseThrow(() -> new NoSuchElementException("Offer not found"));
         reservation.setOffer(offer);
 
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
 
-        if (isAdmin) {
-            reservation.setPrice(Optional.ofNullable(updatedDto.getPrice()).orElse(offer.getPrice()));
-            reservation.setDescription(Optional.ofNullable(updatedDto.getDescription()).orElse(offer.getDescription()));
-            reservation.setServiceType(Optional.ofNullable(updatedDto.getServiceType()).orElse(offer.getServiceType()));
-            reservation.setStartDateTime(updatedDto.getStartDateTime());
-            reservation.setEndDateTime(updatedDto.getEndDateTime());
+        // nastavenie základných polí
+        reservation.setStartDateTime(dto.getStartDateTime());
+        reservation.setEndDateTime(dto.getEndDateTime());
+        reservation.setAdults(dto.getAdults());
+        reservation.setChildren(dto.getChildren());
 
-            // novinka: set additional services
+        // nastavenie podľa oprávnení
+        if (isAdmin) {
+            reservation.setPrice(Optional.ofNullable(dto.getPrice()).orElse(offer.getPrice()));
+            reservation.setDescription(Optional.ofNullable(dto.getDescription()).orElse(offer.getDescription()));
+            reservation.setServiceType(Optional.ofNullable(dto.getServiceType()).orElse(offer.getServiceType()));
+
             reservation.setAdditionalServices(
-                    updatedDto.getAdditionalServices() != null ? new HashSet<>(updatedDto.getAdditionalServices()) : new HashSet<>()
+                    new HashSet<>(Optional.ofNullable(dto.getAdditionalServices()).orElse(Set.of()))
             );
 
-            Set<OfferTag> updatedTags = updatedDto.getTags() != null ? updatedDto.getTags() : Set.of();
+            Set<OfferTag> updatedTags = Optional.ofNullable(dto.getTags()).orElse(Set.of());
             reservation.getTags().retainAll(updatedTags);
             reservation.getTags().addAll(updatedTags);
         } else {
@@ -251,13 +255,10 @@ public class ReservationServiceImpl implements ReservationService {
             reservation.setDescription(offer.getDescription());
             reservation.setServiceType(offer.getServiceType());
             reservation.setTags(new HashSet<>(offer.getTags()));
-            reservation.setAdditionalServices(updatedDto.getAdditionalServices() != null ? updatedDto.getAdditionalServices() : Set.of());
-            reservation.setStartDateTime(updatedDto.getStartDateTime());
-            reservation.setEndDateTime(updatedDto.getEndDateTime());
+            reservation.setAdditionalServices(
+                    new HashSet<>(Optional.ofNullable(dto.getAdditionalServices()).orElse(Set.of()))
+            );
         }
-
-        reservation.setAdults(updatedDto.getAdults());
-        reservation.setChildren(updatedDto.getChildren());
 
         reservationRepository.save(reservation);
     }
