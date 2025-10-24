@@ -11,6 +11,7 @@ import java.util.Set;
 @Mapper(componentModel = "spring")
 public interface ReservationMapper {
 
+    // --- Entity → DTO ---
     @Mapping(source = "offer.id", target = "offerId")
     @Mapping(source = "offer.title", target = "offerName")
     @Mapping(source = "offer.tags", target = "tags", qualifiedByName = "toMutableSet")
@@ -21,20 +22,23 @@ public interface ReservationMapper {
     @Mapping(source = "additionalServices", target = "additionalServices")
     ReservationDTO toDTO(ReservationEntity entity);
 
+    // --- DTO → Entity ---
+    @InheritInverseConfiguration(name = "toDTO")
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "offer", ignore = true)
     @Mapping(target = "user", ignore = true)
-    @Mapping(source = "tags", target = "tags", qualifiedByName = "toMutableSet")
-    @Mapping(source = "additionalServices", target = "additionalServices")
     ReservationEntity toEntity(ReservationDTO dto);
 
+    // --- Helper: Set conversion (avoids immutable Set issues) ---
     @Named("toMutableSet")
     default Set<OfferTag> toMutableSet(Set<OfferTag> tags) {
         return tags == null ? new HashSet<>() : new HashSet<>(tags);
     }
 
+    // --- Update entity fields from DTO ---
     void updateReservationEntity(ReservationDTO source, @MappingTarget ReservationEntity target);
 
+    // --- Fill derived fields after mapping ---
     @AfterMapping
     default void fillOfferDates(@MappingTarget ReservationDTO dto, ReservationEntity entity) {
         if (entity.getOffer() != null) {
@@ -43,5 +47,3 @@ public interface ReservationMapper {
         }
     }
 }
-
-

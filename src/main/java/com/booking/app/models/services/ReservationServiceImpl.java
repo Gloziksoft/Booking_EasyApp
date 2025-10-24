@@ -67,8 +67,13 @@ public class ReservationServiceImpl implements ReservationService {
 
     // --- CRUD ---
     @Override
+    @Transactional(readOnly = true)
     public Page<ReservationDTO> findAll(Pageable pageable) {
-        return reservationRepository.findAll(pageable).map(this::mapToDto);
+        List<ReservationDTO> dtos = reservationRepository.findAll().stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
     }
 
     @Override
@@ -132,9 +137,14 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Page<ReservationDTO> findByUserEmail(String email, Pageable pageable) {
         UserEntity user = getUserByEmail(email);
-        return reservationRepository.findByUser(user, pageable).map(this::mapToDto);
+        List<ReservationDTO> dtos = reservationRepository.findByUser(user).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+
+        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
     }
 
     @Override
@@ -163,25 +173,29 @@ public class ReservationServiceImpl implements ReservationService {
         return getOfferByIdInternal(offerId);
     }
 
+    @Transactional
     @Override
     public ReservationDTO create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
-        if (dto.getStartDateTime().isBefore(offer.getStartDateTime()) ||
-                dto.getEndDateTime().isAfter(offer.getEndDateTime())) {
+        OfferEntity managedOffer = offerRepository.findById(offer.getId())
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
+
+        if (dto.getStartDateTime().isBefore(managedOffer.getStartDateTime()) ||
+                dto.getEndDateTime().isAfter(managedOffer.getEndDateTime())) {
             throw new IllegalArgumentException("Reservation dates must be within the offer period.");
         }
 
         ReservationEntity reservation = new ReservationEntity();
         reservation.setUser(user);
-        reservation.setOffer(offer);
-        reservation.setServiceType(offer.getServiceType());
-        reservation.setDescription(offer.getDescription());
+        reservation.setOffer(managedOffer);
+        reservation.setServiceType(managedOffer.getServiceType());
+        reservation.setDescription(managedOffer.getDescription());
         reservation.setStartDateTime(dto.getStartDateTime());
         reservation.setEndDateTime(dto.getEndDateTime());
-        reservation.setPrice(offer.getPrice());
+        reservation.setPrice(managedOffer.getPrice());
         reservation.setAdditionalServices(dto.getAdditionalServices() != null ? dto.getAdditionalServices() : Set.of());
 
         reservation.setTags(
-                dto.getTags() != null ? new HashSet<>(dto.getTags()) : new HashSet<>(offer.getTags())
+                dto.getTags() != null ? new HashSet<>(dto.getTags()) : new HashSet<>(managedOffer.getTags())
         );
         reservation.setAdults(dto.getAdults());
         reservation.setChildren(dto.getChildren());
@@ -192,8 +206,8 @@ public class ReservationServiceImpl implements ReservationService {
         return reservationMapper.toDTO(reservation);
     }
 
-
     @Override
+    @Transactional
     public boolean edit(ReservationDTO reservation, org.springframework.security.core.userdetails.User user) {
         boolean isAdmin = user.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
@@ -201,6 +215,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
     public void update(Long id, ReservationDTO updatedDto, org.springframework.security.core.userdetails.User user) {
         ReservationEntity reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
@@ -248,6 +263,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    @Transactional
     public void delete(Long id, org.springframework.security.core.userdetails.User user) {
         ReservationDTO reservation = findById(id);
         if (!edit(reservation, user)) {
