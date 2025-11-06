@@ -41,13 +41,6 @@ public class ReservationEntity {
     @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
-    // Tagy doplnkových vlastností rezervácie
-    @ElementCollection(targetClass = OfferTag.class)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "reservation_tags", joinColumns = @JoinColumn(name = "reservation_id"))
-    @Column(name = "tag")
-    private Set<OfferTag> tags = new HashSet<>();
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "offer_id", nullable = false)
     private OfferEntity offer;
@@ -85,9 +78,6 @@ public class ReservationEntity {
 
     public ServiceType getServiceType() { return serviceType; }
     public void setServiceType(ServiceType serviceType) { this.serviceType = serviceType; }
-
-    public Set<OfferTag> getTags() { return tags; }
-    public void setTags(Set<OfferTag> tags) { this.tags = tags; }
 
     public OfferEntity getOffer() { return offer; }
     public void setOffer(OfferEntity offer) { this.offer = offer; }

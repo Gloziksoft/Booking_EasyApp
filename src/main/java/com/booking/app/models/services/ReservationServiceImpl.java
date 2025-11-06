@@ -193,10 +193,6 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setEndDateTime(dto.getEndDateTime());
         reservation.setPrice(managedOffer.getPrice());
         reservation.setAdditionalServices(dto.getAdditionalServices() != null ? dto.getAdditionalServices() : Set.of());
-
-        reservation.setTags(
-                dto.getTags() != null ? new HashSet<>(dto.getTags()) : new HashSet<>(managedOffer.getTags())
-        );
         reservation.setAdults(dto.getAdults());
         reservation.setChildren(dto.getChildren());
 
@@ -248,13 +244,10 @@ public class ReservationServiceImpl implements ReservationService {
             );
 
             Set<OfferTag> updatedTags = Optional.ofNullable(dto.getTags()).orElse(Set.of());
-            reservation.getTags().retainAll(updatedTags);
-            reservation.getTags().addAll(updatedTags);
         } else {
             reservation.setPrice(offer.getPrice());
             reservation.setDescription(offer.getDescription());
             reservation.setServiceType(offer.getServiceType());
-            reservation.setTags(new HashSet<>(offer.getTags()));
             reservation.setAdditionalServices(
                     new HashSet<>(Optional.ofNullable(dto.getAdditionalServices()).orElse(Set.of()))
             );
