@@ -41,7 +41,7 @@ services:
   # 🚀 SPRING BOOT APP (iba pre PRODUKCNE nasadenie)
   # ===============================
   app:
-    profiles: ["local"]   # 👈 spustí sa len ak zvolíš profil "prod"
+    profiles: ["prod"]   # 👈 spustí sa len ak zvolíš profil "prod"
     build: .
     container_name: springboot_booking_app
     restart: always
