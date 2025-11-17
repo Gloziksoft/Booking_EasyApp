@@ -1,5 +1,6 @@
 package com.booking.app.controllers;
 
+import com.booking.app.models.services.UserService;
 import com.booking.app.models.services.email.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,19 +14,27 @@ public class EmailController {
     private static final Logger logger = LoggerFactory.getLogger(EmailController.class);
 
     private final EmailService emailService;
+    private final UserService userService;
 
-    public EmailController(EmailService emailService) {
+    public EmailController(EmailService emailService, UserService userService) {
         this.emailService = emailService;
+        this.userService = userService;
     }
 
-    @PostMapping("/sendPasswordEmail")
-    public String sendCustomerEmail(@RequestParam String customerEmail) {
+    @PostMapping("/sendResetToken")
+    public String sendResetToken(@RequestParam String email) {
         try {
-            emailService.sendPasswordResetEmail(customerEmail);
-            return "Email odoslaný na: " + customerEmail;
+            // 1. vytvoriť token
+            String token = userService.createPasswordResetToken(email);
+
+            // 2. poslať email
+            emailService.sendPasswordResetEmail(email, token);
+
+            return "Reset hesla bol odoslaný na: " + email;
+
         } catch (MailException e) {
             logger.error("Chyba pri odosielaní emailu: ", e);
-            return "Chyba pri odosielaní: " + e.getMessage();
+            return "Chyba pri odoslaní: " + e.getMessage();
         }
     }
 
@@ -36,7 +45,7 @@ public class EmailController {
             return "Potvrdzovací email odoslaný na: " + customerEmail;
         } catch (MailException e) {
             logger.error("Chyba pri odosielaní rezervačného emailu: ", e);
-            return "Chyba pri odosielaní: " + e.getMessage();
+            return "Chyba pri odoslaní: " + e.getMessage();
         }
     }
 }

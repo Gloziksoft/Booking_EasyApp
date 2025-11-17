@@ -20,4 +20,5 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
      * @return an Optional containing the UserEntity if found, or empty otherwise
      */
     Optional<UserEntity> findByEmail(String email);
+    Optional<UserEntity> findByResetToken(String token);
 }

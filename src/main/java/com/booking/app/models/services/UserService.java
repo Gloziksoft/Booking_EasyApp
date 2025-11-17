@@ -43,4 +43,7 @@ public interface UserService {
      * @return a list of all UserEntity instances
      */
     List<UserEntity> findAllUsers();
+
+    String createPasswordResetToken(String email);
+    boolean resetPassword(String token, String newPassword);
 }

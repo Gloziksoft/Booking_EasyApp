@@ -21,11 +21,10 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-/**
- * Controller for handling user account actions like login, registration, and profile view.
- */
 @Controller
 @RequestMapping("/account")
 public class AccountController {
@@ -41,22 +40,21 @@ public class AccountController {
 
     private final EmailService emailService;
 
-    /**
-     * Displays the login page.
-     *
-     * @return The login page view.
-     */
+    public AccountController(EmailService emailService) {
+        this.emailService = emailService;
+    }
+
+    // --------------------------------------------------------------------
+    // LOGIN
+    // --------------------------------------------------------------------
     @GetMapping("/login")
     public String renderLogin() {
         return "pages/account/login";
     }
 
-    /**
-     * Displays the registration page with a fresh or existing UserDTO.
-     *
-     * @param model The model to populate with form data.
-     * @return The registration page view.
-     */
+    // --------------------------------------------------------------------
+    // REGISTER
+    // --------------------------------------------------------------------
     @GetMapping("/register")
     public String renderRegister(Model model) {
         if (!model.containsAttribute("userDTO")) {
@@ -65,21 +63,13 @@ public class AccountController {
         return "pages/account/register";
     }
 
-    /**
-     * Handles user registration.
-     *
-     * @param userDTO            Data submitted by the user from the registration form.
-     * @param result             BindingResult to capture validation errors.
-     * @param redirectAttributes Redirect attributes for passing data across redirects.
-     * @return Redirects back to registration page if there are errors, otherwise to login page.
-     */
     @PostMapping("/register")
     public String register(
             @Valid @ModelAttribute("userDTO") UserDTO userDTO,
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
-        // Handle validation errors
+
         if (result.hasErrors()) {
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
             redirectAttributes.addFlashAttribute("userDTO", userDTO);
@@ -87,18 +77,15 @@ public class AccountController {
         }
 
         try {
-            // Attempt to create a new user (non-admin by default)
             userService.create(userDTO, false);
 
         } catch (DuplicateEmailException e) {
-            // Email already exists
             result.rejectValue("email", "error", "Email už existuje.");
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
             redirectAttributes.addFlashAttribute("userDTO", userDTO);
             return "redirect:/account/register";
 
         } catch (PasswordsDoNotEqualException e) {
-            // Password and confirmPassword do not match
             result.rejectValue("password", "error", "Heslá sa nezhodujú.");
             result.rejectValue("confirmPassword", "error", "Heslá sa nezhodujú.");
             redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
@@ -106,37 +93,29 @@ public class AccountController {
             return "redirect:/account/register";
         }
 
-        // Success - redirect to login
         redirectAttributes.addFlashAttribute("success", "Registrácia bola úspešná.");
         return "redirect:/account/login";
     }
 
-    /**
-     * Displays the profile page for the logged-in user, including their reservations.
-     * Admins see all users and all reservations.
-     *
-     * @param userDetails The currently authenticated user.
-     * @param model       Model to pass user and reservation data to the view.
-     * @return The profile page view.
-     */
+    // --------------------------------------------------------------------
+    // PROFILE
+    // --------------------------------------------------------------------
     @GetMapping("/profile")
     public String profile(@AuthenticationPrincipal UserDetails userDetails, Model model) {
+
         String email = userDetails.getUsername();
 
-        // Fetch the user entity based on email
         UserEntity user = userService.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Používateľ s e-mailom sa nenašiel: " + email));
+                .orElseThrow(() -> new UsernameNotFoundException("Používateľ sa nenašiel: " + email));
 
         model.addAttribute("user", user);
+        boolean isAdmin = (user.getRole() == Role.ADMIN);
 
-        // Check if the user has ADMIN role
-        boolean isAdmin = user.getRole() == Role.ADMIN;
-
-
-        // Fetch reservations based on role
         List<ReservationDTO> reservations;
+
         if (isAdmin) {
             reservations = reservationService.findAll();
+            model.addAttribute("allUsers", userRepository.findAll());
         } else {
             reservations = reservationService.findByUserEmail(email);
         }
@@ -144,18 +123,12 @@ public class AccountController {
         model.addAttribute("reservations", reservations);
         model.addAttribute("isAdmin", isAdmin);
 
-        // If admin, show all users
-        if (isAdmin) {
-            model.addAttribute("allUsers", userRepository.findAll());
-        }
-
         return "pages/account/profile";
     }
 
-    public AccountController(EmailService emailService) {
-        this.emailService = emailService;
-    }
-
+    // --------------------------------------------------------------------
+    // FORGOT PASSWORD – zadanie emailu
+    // --------------------------------------------------------------------
     @GetMapping("/forgot-password")
     public String forgotPasswordForm() {
         return "pages/account/forgot-password";
@@ -163,9 +136,57 @@ public class AccountController {
 
     @PostMapping("/forgot-password")
     public String forgotPasswordSubmit(@RequestParam String email, Model model) {
-        emailService.sendPasswordResetEmail(email);
 
-        model.addAttribute("message", "Ak účet existuje, poslali sme ti inštrukcie na email." + email);
+        String token = userService.createPasswordResetToken(email);
+
+        // Nezobrazujeme, či účet existuje
+        if (token != null) {
+            emailService.sendPasswordResetEmail(email, token);
+        }
+
+        model.addAttribute("message", "Ak účet existuje, poslali sme inštrukcie na email.");
         return "pages/account/forgot-password";
+    }
+
+    // --------------------------------------------------------------------
+    // RESET PASSWORD
+    // --------------------------------------------------------------------
+    @GetMapping("/reset-password")
+    public String resetPasswordForm(@RequestParam String token, Model model) {
+
+        Optional<UserEntity> userOpt = userRepository.findByResetToken(token);
+
+        if (userOpt.isEmpty() ||
+                userOpt.get().getResetTokenExpiration().isBefore(LocalDateTime.now())) {
+
+            model.addAttribute("error", "Token je neplatný alebo expiroval.");
+            return "pages/account/reset-password-error";
+        }
+
+        model.addAttribute("token", token);
+        return "pages/account/reset-password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(
+            @RequestParam String token,
+            @RequestParam String password,
+            @RequestParam String confirmPassword,
+            Model model) {
+
+        if (!password.equals(confirmPassword)) {
+            model.addAttribute("token", token);
+            model.addAttribute("error", "Heslá sa nezhodujú.");
+            return "pages/account/reset-password";
+        }
+
+        boolean success = userService.resetPassword(token, password);
+
+        if (!success) {
+            model.addAttribute("error", "Token je neplatný alebo expiroval.");
+            return "pages/account/reset-password";
+        }
+
+        return "redirect:/account/login?resetSuccess";
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -118,5 +119,55 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     @Override
     public List<UserEntity> findAllUsers() {
         return userRepository.findAll();
+    }
+
+    @Override
+    public String createPasswordResetToken(String email) {
+        Optional<UserEntity> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return null;  // Neschválne nič neprezradzujeme (security)
+        }
+
+        UserEntity user = optionalUser.get();
+
+        // Vygenerujeme náhodný bezpečný token
+        String token = UUID.randomUUID().toString();
+
+        user.setResetToken(token);
+        user.setResetTokenExpiration(LocalDateTime.now().plusMinutes(15)); // expiracia 15 min
+
+        userRepository.save(user);
+
+        return token;
+    }
+
+    @Override
+    public boolean resetPassword(String token, String newPassword) {
+        Optional<UserEntity> optionalUser = userRepository.findByResetToken(token);
+
+        if (optionalUser.isEmpty()) {
+            return false; // token neexistuje
+        }
+
+        UserEntity user = optionalUser.get();
+
+        // Skontrolujeme expiraciu
+        if (user.getResetTokenExpiration() == null ||
+                user.getResetTokenExpiration().isBefore(LocalDateTime.now())) {
+
+            return false; // token expiroval
+        }
+
+        // Zmeníme heslo
+        user.setPassword(passwordEncoder.encode(newPassword));
+
+        // Zneplatníme token
+        user.setResetToken(null);
+        user.setResetTokenExpiration(null);
+
+        userRepository.save(user);
+
+        return true;
     }
 }
