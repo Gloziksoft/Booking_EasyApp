@@ -148,6 +148,14 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public List<ReservationDTO> findByUserEmail(String email) {
+        UserEntity user = getUserByEmail(email);
+        return reservationRepository.findByUser(user).stream()
+                .map(this::mapToDto)
+                .collect(Collectors.toList());
+    }
+
+    @Override
     public ReservationDTO prepareReservation(Long offerId, String userEmail) {
         OfferEntity offer = getOfferByIdInternal(offerId);
 
@@ -264,13 +272,5 @@ public class ReservationServiceImpl implements ReservationService {
             throw new SecurityException("Not authorized to delete this reservation.");
         }
         reservationRepository.deleteById(id);
-    }
-
-    @Override
-    public List<ReservationDTO> findByUserEmail(String email) {
-        UserEntity user = getUserByEmail(email);
-        return reservationRepository.findByUser(user).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
     }
 }
