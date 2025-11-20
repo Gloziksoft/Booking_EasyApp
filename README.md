@@ -30,11 +30,11 @@
 
 ## 🏗️ System Architecture
 
-![Architecture](images/Booking_EasyApp - High Level Architecture.png)
+![Architecture](images/architecture.png)
 
 ## 🗄️ Database ER Diagram
 
-![ER Diagram](images/ER diagram.png)
+![ER Diagram](images/er_diagram.png)
 
 ## 📡 REST API Endpoints
 
@@ -60,21 +60,21 @@ A modern full‑stack reservation management system built with **Spring Boot**, 
 
 ### Home & Login
 
-| Home Page                                           | Login Page                                          |
-| --------------------------------------------------- | --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-04-52.png) | ![](images/Screenshot from 2025-11-19 22-04-17.png) |
+| Home Page                  | Login Page                 |
+| -------------------------- | -------------------------- |
+| ![](images/home.png)       | ![](images/login.png)      |
 
 ### Offers – Guest / User / Admin
 
-| Guest View                                          | User View                                           | Admin View                                          |
-| --------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-05-12.png) | ![](images/Screenshot from 2025-11-19 22-06-24.png) | ![](images/Screenshot from 2025-11-19 22-06-09.png) |
+| Guest View                     | User View                      | Admin View                      |
+| ----------------------------- | ------------------------------ | ------------------------------ |
+| ![](images/offers-guest.png)  | ![](images/offers-user.png)    | ![](images/offers-admin.png)   |
 
 ### My Reservations
 
-| My Reservations                                     |
-| --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-05-27.png) |
+| My Reservations                |
+| ------------------------------ |
+| ![](images/reservations.png)  |
 
 Below is an example screenshot of the Booking EasyApp UI:
 
@@ -320,11 +320,11 @@ src/
 
 ## 🏗️ Architektúra systému
 
-![Architecture](images/Booking_EasyApp - High Level Architecture.png)
+![Architecture](images/architecture.png)
 
 ## 🗄️ Databázový ER diagram
 
-![ER Diagram](images/ER diagram.png)
+![ER Diagram](images/er_diagram.png)
 
 ---
 
@@ -332,21 +332,25 @@ src/
 
 ### Home & Login
 
-| Domovská stránka                                    | Prihlásenie                                         |
-| --------------------------------------------------- | --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-04-52.png) | ![](images/Screenshot from 2025-11-19 22-04-17.png) |
+| Home Page                  | Login Page                 |
+| -------------------------- | -------------------------- |
+| ![](images/home.png)       | ![](images/login.png)      |
 
-### Ponuky – Návštevník / Používateľ / Admin
+### Offers – Guest / User / Admin
 
-| Návštevník                                          | Používateľ                                          | Admin                                               |
-| --------------------------------------------------- | --------------------------------------------------- | --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-05-12.png) | ![](images/Screenshot from 2025-11-19 22-06-24.png) | ![](images/Screenshot from 2025-11-19 22-06-09.png) |
+| Guest View                     | User View                      | Admin View                      |
+| ----------------------------- | ------------------------------ | ------------------------------ |
+| ![](images/offers-guest.png)  | ![](images/offers-user.png)    | ![](images/offers-admin.png)   |
 
-### Rezervácie
+### My Reservations
 
-| Moje rezervácie                                     |
-| --------------------------------------------------- |
-| ![](images/Screenshot from 2025-11-19 22-05-27.png) |
+| My Reservations                |
+| ------------------------------ |
+| ![](images/reservations.png)  |
+
+Below is an example screenshot of the Booking EasyApp UI:
+
+![App Preview](images/booking_app.jpg)
 
 ---
 
