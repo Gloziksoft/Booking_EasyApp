@@ -78,7 +78,7 @@ A modern full‑stack reservation management system built with **Spring Boot**, 
 
 Below is an example screenshot of the Booking EasyApp UI:
 
-![App Preview](images/booking_app.jpg)
+![App Preview](images/home.png)
 
 ---
 
@@ -350,7 +350,7 @@ src/
 
 Below is an example screenshot of the Booking EasyApp UI:
 
-![App Preview](images/booking_app.jpg)
+![App Preview](images/home.png)
 
 ---
 
