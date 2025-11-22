@@ -13,7 +13,7 @@
     </parent>
 
     <groupId>com.poistenie</groupId>
-    <artifactId>bookinf-app</artifactId>
+    <artifactId>booking-app</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
     <properties>
