@@ -14,6 +14,7 @@ import com.booking.app.data.enums.ServiceType;
 import com.booking.app.models.services.email.EmailService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -69,11 +70,18 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional(readOnly = true)
     public Page<ReservationDTO> findAll(Pageable pageable) {
-        List<ReservationDTO> dtos = reservationRepository.findAll().stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
 
-        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
+        List<ReservationEntity> allEntities = reservationRepository.findAllFetch();
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), allEntities.size());
+
+        List<ReservationDTO> content = allEntities.subList(start, end)
+                .stream()
+                .map(reservationMapper::toDTO)
+                .toList();
+
+        return new PageImpl<>(content, pageable, allEntities.size());
     }
 
     @Override
@@ -139,13 +147,20 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional(readOnly = true)
     public Page<ReservationDTO> findByUserEmail(String email, Pageable pageable) {
-        UserEntity user = getUserByEmail(email);
-        List<ReservationDTO> dtos = reservationRepository.findByUser(user).stream()
-                .map(this::mapToDto)
-                .collect(Collectors.toList());
 
-        return new org.springframework.data.domain.PageImpl<>(dtos, pageable, dtos.size());
+        List<ReservationEntity> all = reservationRepository.findAllForUser(email);
+
+        int start = (int) pageable.getOffset();
+        int end = Math.min(start + pageable.getPageSize(), all.size());
+
+        List<ReservationDTO> content = all.subList(start, end)
+                .stream()
+                .map(reservationMapper::toDTO)
+                .toList();
+
+        return new PageImpl<>(content, pageable, all.size());
     }
+
 
     @Override
     public List<ReservationDTO> findByUserEmail(String email) {
