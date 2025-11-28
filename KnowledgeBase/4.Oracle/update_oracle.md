@@ -4,7 +4,7 @@
 → commit + push do GitHubu.
 
 2. Na serveri (VM) urobíš pull
-cd ~/Booking_EasyApp
+cd ~/InsuranceApp
 git pull
 
 3. Znovu vytvoríš jar
