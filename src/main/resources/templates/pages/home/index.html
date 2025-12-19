@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Navigácia -->
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<div class="container text-center">
+
+    <!-- Logo -->
+    <img th:src="@{/images/booking_app.jpg}" alt="BookingApp Logo" class="img-fluid my-3" width="150" height="150"/>
+
+    <!-- Anglický preklad -->
+    <h1 class="mb-3">Welcome to BookingApp</h1>
+
+    <p class="lead">
+        Book services easily and quickly. Our app helps you plan and manage reservations efficiently – without stress or
+        unnecessary paperwork.
+    </p>
+
+    <p>
+        From healthcare to wellness – our solution is flexible and suitable for various types of service providers.
+    </p>
+
+    <hr class="my-4">
+
+    <!-- Slovenský originál -->
+    <h1 class="mb-3">Vitajte v BookingApp</h1>
+
+    <p class="lead">
+        Rezervujte si služby jednoducho a rýchlo. Naša aplikácia vám pomôže plánovať a spravovať rezervácie
+        efektívne – bez stresu a zbytočného papiera.
+    </p>
+
+    <p>
+        Od zdravotníctva až po wellness – naše riešenie je flexibilné a vhodné pre rôzne typy poskytovateľov služieb.
+    </p>
+
+    <div class="d-grid gap-2 d-md-block mt-4 py-3">
+        <a th:href="@{/offers}" class="btn btn-primary btn-lg me-2">Prejsť na ponuku rezervácii</a>
+        <a th:href="@{/about-us}" class="btn btn-outline-secondary btn-lg">O aplikácii</a>
+    </div>
+
+</div>
+
+<!-- Footer -->
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

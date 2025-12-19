@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Header section -->
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<!-- Main content section -->
+<div class="container py-5">
+  <div class="card shadow text-center p-5">
+    <!-- Error title -->
+    <h1 class="display-5 text-secondary mb-3">405 - Metóda nie je povolená</h1>
+
+    <!-- Error description -->
+    <p class="lead">Požiadavka bola odoslaná pomocou nepovolenej HTTP metódy.</p>
+
+    <!-- Link to return to the main page -->
+    <a href="/offers" class="btn btn-primary mt-3">Späť na hlavnú stránku</a>
+  </div>
+</div>
+
+<!-- Footer section -->
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<div class="container my-4">
+    <h1 class="mb-2">Ponuka rezervácií</h1>
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="text-start">
+            <a class="btn btn-primary" th:href="@{/offers/create}" sec:authorize="hasRole('ADMIN')">
+                Pridať ponuku
+            </a>
+        </div>
+        <div>
+            <form th:action="@{/offers}" method="get" class="d-inline-block">
+                <label for="size" class="form-label me-2">Zobraziť:</label>
+                <select name="size" id="size" class="form-select d-inline-block w-auto" onchange="this.form.submit()">
+                    <option th:value="3" th:selected="${size == 3}">3</option>
+                    <option th:value="6" th:selected="${size == 6}">6</option>
+                    <option th:value="9" th:selected="${size == 9}">9</option>
+                    <option th:value="12" th:selected="${size == 12}">12</option>
+                </select>
+                <input type="hidden" name="page" th:value="${currentPage}">
+            </form>
+        </div>
+    </div>
+
+    <div th:if="${#lists.isEmpty(offers)}">
+        <p>Žiadne rezervácie neboli nájdené.</p>
+    </div>
+
+    <div th:unless="${#lists.isEmpty(offers)}">
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+            <div class="col" th:each="offer : ${offers}">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body d-flex flex-column">
+                        <h5 class="card-title" th:text="${offer.title}">Názov ponuky</h5>
+                        <p class="card-text" th:text="${offer.description}">Popis ponuky</p>
+
+                        <p class="card-text"><strong>Cena:</strong> <span th:text="${offer.price} + ' €'">197.00 €</span></p>
+
+                        <!-- Doplnkové tagy -->
+                        <div class="mb-2">
+                            <span th:each="tag : ${offer.tags}" class="badge bg-info text-dark me-1"
+                                  th:text="${tag.displayName}"></span>
+                        </div>
+
+                        <p class="card-text">
+                            <strong>Od:</strong>
+                            <span th:text="${#temporals.format(offer.startDateTime, 'dd.MM.yyyy HH:mm')}">od</span><br/>
+                            <strong>Do:</strong>
+                            <span th:text="${#temporals.format(offer.endDateTime, 'dd.MM.yyyy HH:mm')}">do</span>
+                        </p>
+
+                        <div class="mt-auto d-flex flex-wrap justify-content-start gap-2">
+                            <a class="btn btn-primary btn-sm flex-grow-1 flex-md-grow-0"
+                               th:href="@{/offers/{id}(id=${offer.offerId})}">Zobraziť detail</a>
+
+                            <a class="btn btn-success btn-sm flex-grow-1 flex-md-grow-0"
+                               th:href="@{reservations/{id}/reserve(id=${offer.offerId})}"
+                               sec:authorize="isAuthenticated()">Rezervovať</a>
+
+                            <a class="btn btn-outline-primary btn-sm flex-grow-1 flex-md-grow-0"
+                               th:href="@{/account/login}" sec:authorize="!isAuthenticated()">Prihlásiť sa na rezerváciu</a>
+
+                            <a class="btn btn-warning btn-sm flex-grow-1 flex-md-grow-0"
+                               th:href="@{/offers/{id}/edit(id=${offer.offerId})}"
+                               sec:authorize="hasRole('ADMIN')">Upraviť</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="mt-4">
+            <ul class="pagination justify-content-center">
+                <li class="page-item" th:classappend="${currentPage == 0} ? 'disabled'">
+                    <a class="page-link" th:href="@{/offers(page=${currentPage - 1}, size=${size})}">Predchádzajúca</a>
+                </li>
+                <li class="page-item" th:each="pageNum : ${#numbers.sequence(0, totalPages - 1)}"
+                    th:classappend="${pageNum == currentPage} ? 'active'">
+                    <a class="page-link" th:href="@{/offers(page=${pageNum}, size=${size})}" th:text="${pageNum + 1}">1</a>
+                </li>
+                <li class="page-item" th:classappend="${currentPage + 1 >= totalPages} ? 'disabled'">
+                    <a class="page-link" th:href="@{/offers(page=${currentPage + 1}, size=${size})}">Ďalšia</a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+
+    <div th:if="${totalPages == 0}" class="text-center my-3">Žiadne ponuky</div>
+</div>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+</body>
+</html>

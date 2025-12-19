@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<div class="container my-4">
+    <h1 class="mb-3">Upraviť ponuku</h1>
+
+    <form th:action="@{/offers/{id}/edit(id=${offer.offerId})}" th:object="${offer}" method="post"
+          enctype="multipart/form-data">
+
+        <!-- Názov -->
+        <div class="mb-3">
+            <label for="title" class="form-label">Názov</label>
+            <input type="text" id="title" th:field="*{title}" class="form-control"
+                   th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <small class="text-danger" th:errors="*{title}"></small>
+        </div>
+
+        <!-- Popis -->
+        <div class="mb-3">
+            <label for="description" class="form-label">Popis</label>
+            <textarea id="description" th:field="*{description}" class="form-control" rows="3"
+                      th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"></textarea>
+            <small class="text-danger" th:errors="*{description}"></small>
+        </div>
+
+        <!-- Cena -->
+        <div class="mb-3">
+            <label for="price" class="form-label">Cena</label>
+            <input type="number" step="0.01" id="price" th:field="*{price}" class="form-control"
+                   th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <small class="text-danger" th:errors="*{price}"></small>
+        </div>
+
+        <!-- Typ služby -->
+        <div class="mb-3">
+            <label for="serviceType" class="form-label">Typ služby</label>
+            <select id="serviceType" th:field="*{serviceType}" class="form-select"
+                    th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <option th:each="type : ${T(com.booking.app.data.enums.ServiceType).values()}"
+                        th:value="${type}" th:text="${type.displayName}"
+                        th:selected="${type} == ${offer.serviceType}"></option>
+            </select>
+            <small class="text-danger" th:errors="*{serviceType}"></small>
+        </div>
+
+        <!-- Od -->
+        <div class="mb-3">
+            <label for="startDateTime" class="form-label">Od</label>
+            <input type="datetime-local"
+                   id="startDateTime"
+                   name="startDateTime"
+                   th:value="${offer.startDateTime != null ? #temporals.format(offer.startDateTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                   class="form-control"
+                   th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <small class="text-danger" th:errors="*{startDateTime}"></small>
+        </div>
+
+        <!-- Do -->
+        <div class="mb-3">
+            <label for="endDateTime" class="form-label">Do</label>
+            <input type="datetime-local"
+                   id="endDateTime"
+                   name="endDateTime"
+                   th:value="${offer.endDateTime != null ? #temporals.format(offer.endDateTime, 'yyyy-MM-dd''T''HH:mm') : ''}"
+                   class="form-control"
+                   th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}"/>
+            <small class="text-danger" th:errors="*{endDateTime}"></small>
+        </div>
+
+        <!-- Doplnkové tagy (OfferTag) -->
+        <div class="mb-3">
+            <label class="form-label">Vlastnosti ponuky</label>
+            <div th:each="tag : ${T(com.booking.app.data.enums.OfferTag).values()}" class="form-check">
+                <input class="form-check-input" type="checkbox"
+                       th:id="${tag.name()}"
+                       th:value="${tag}"
+                       th:field="*{tags}"
+                       th:checked="${offer.tags != null} ? ${offer.tags.contains(tag)} : false"
+                       th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">
+                <label class="form-check-label" th:for="${tag.name()}" th:text="${tag.displayName}"></label>
+            </div>
+        </div>
+
+        <!-- Tlačidlá -->
+        <button type="submit" class="btn btn-primary"
+                th:disabled="${not #authorization.expression('hasRole(''ROLE_ADMIN'')')}">Uložiť zmeny
+        </button>
+        <a th:href="@{/offers/{id}(id=${offer.offerId})}" class="btn btn-secondary">Zrušiť</a>
+
+    </form>
+</div>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+</body>
+</html>

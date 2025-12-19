@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/layout.html :: head}">
+    <title>Profil užívateľa</title>
+</head>
+
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<body class="d-flex flex-column min-vh-100">
+
+<div class="container my-5">
+
+    <h1 class="profile-title mb-4">Profil užívateľa</h1>
+
+    <section class="user-info mb-5 p-4 bg-white rounded shadow-sm">
+        <h2 class="mb-3">Osobné údaje</h2>
+        <p><strong>First Name:</strong> <span th:text="${user.firstName}">First</span></p>
+        <p><strong>Last Name:</strong> <span th:text="${user.lastName}">Last</span></p>
+        <p><strong>Email:</strong> <span th:text="${user.email}">user@example.com</span></p>
+    </section>
+
+    <!-- User reservations list -->
+    <section class="reservations">
+        <h2>Rezervácie</h2>
+
+        <!-- Desktop table -->
+        <div class="table-responsive d-none d-md-block">
+            <table class="table table-striped table-hover shadow-sm bg-white rounded">
+                <thead class="bg-primary text-white">
+                <tr>
+                    <th>ID</th>
+                    <th>Meno a Priezvisko</th>
+                    <th>Popis</th>
+                    <th>Dátum</th>
+                    <th>Typ služby</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="r : ${reservations}">
+                    <td th:text="${r.id}">1</td>
+                    <td th:text="${r.userFirstName + ' ' + r.userLastName}">Meno a Priezvisko</td>
+                    <td th:text="${r.description}">Popis</td>
+                    <td th:text="${#temporals.format(r.startDateTime, 'dd.MM.yyyy HH:mm')}"></td>
+                    <td th:text="${r.serviceType}">TYP</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Mobile cards -->
+        <div class="d-md-none">
+            <div th:each="r : ${reservations}" class="card mb-3 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title" th:text="${r.userFirstName + ' ' + r.userLastName}">Meno a Priezvisko</h5>
+                    <p class="card-text">
+                        <strong>Popis:</strong> <span th:text="${r.description}">Popis</span><br>
+                        <strong>Dátum:</strong> <span
+                            th:text="${#temporals.format(r.startDateTime, 'dd.MM.yyyy HH:mm')}"></span><br>
+                        <strong>Typ služby:</strong> <span th:text="${r.serviceType}">TYP</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Admin section visible only if user has admin rights -->
+    <div th:if="${isAdmin}" class="admin-section mt-5">
+        <h2>Všetci používatelia (Admin sekcia)</h2>
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shadow-sm bg-white rounded">
+                <thead class="bg-primary text-white">
+                <tr>
+                    <th>Meno</th>
+                    <th>Priezvisko</th>
+                    <th>Email</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="user : ${allUsers}">
+                    <td th:text="${user.firstName}">First</td>
+                    <td th:text="${user.lastName}">Last</td>
+                    <td th:text="${user.email}">Email</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>

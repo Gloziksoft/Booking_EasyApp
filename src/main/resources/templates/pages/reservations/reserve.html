@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+
+<body class="d-flex flex-column min-vh-100">
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<div class="container my-4">
+    <h1>Rezervovať ponuku</h1>
+
+    <form th:action="@{/reservations/{id}/reserve(id=${offer.offerId})}"
+          th:object="${reservation}" method="post">
+
+        <!-- ✅ Ponuka -->
+        <div class="mb-3">
+            <label class="form-label">Ponuka</label>
+            <input type="text" class="form-control" th:value="${offer.title}" readonly/>
+            <input type="hidden" th:field="*{offerId}" th:value="${offer.offerId}"/>
+        </div>
+
+        <!-- ✅ Popis -->
+        <div class="mb-3">
+            <label class="form-label">Popis</label>
+            <textarea class="form-control" rows="3" th:text="${offer.description}" readonly></textarea>
+        </div>
+
+        <!-- ✅ Cena -->
+        <div class="mb-3">
+            <label class="form-label">Cena (€)</label>
+            <input type="text" class="form-control" th:value="${offer.price}" readonly/>
+        </div>
+
+        <!-- ✅ Typ služby -->
+        <div class="mb-3">
+            <label class="form-label">Typ služby</label>
+            <input type="text" class="form-control" th:value="${offer.serviceType.displayName}" readonly/>
+        </div>
+
+        <!-- ✅ Tagy -->
+        <div class="mb-3">
+            <label class="form-label">Vlastnosti ponuky</label>
+            <input type="text" class="form-control"
+                   th:value="${#strings.arrayJoin(offer.tags.toArray(), ', ')}" readonly/>
+        </div>
+
+        <!-- ✅ Dátumy rezervácie -->
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <label class="form-label">Začiatok rezervácie</label>
+                <input type="datetime-local" class="form-control"
+                       name="startDateTime"
+                       th:field="*{startDateTime}"
+                       th:attr="min=${#temporals.format(offer.startDateTime, 'yyyy-MM-dd''T''HH:mm')},
+                                max=${#temporals.format(offer.endDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
+                <div id="startError" class="text-danger small mt-1"></div>
+            </div>
+
+            <div class="col-md-6">
+                <label class="form-label">Koniec rezervácie</label>
+                <input type="datetime-local" class="form-control"
+                       name="endDateTime"
+                       th:field="*{endDateTime}"
+                       th:attr="min=${#temporals.format(offer.startDateTime, 'yyyy-MM-dd''T''HH:mm')},
+                                max=${#temporals.format(offer.endDateTime, 'yyyy-MM-dd''T''HH:mm')}"/>
+                <div id="endError" class="text-danger small mt-1"></div>
+            </div>
+        </div>
+
+        <!-- ✅ Počet osôb -->
+        <div class="mb-3">
+            <label class="form-label">Počet osôb</label>
+            <div class="row">
+                <div class="col">
+                    <label>Dospelí</label>
+                    <input type="number" min="1" class="form-control" th:field="*{adults}"/>
+                </div>
+                <div class="col">
+                    <label>Deti</label>
+                    <input type="number" min="0" class="form-control" th:field="*{children}"/>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Doplnkové služby -->
+        <div class="mb-3">
+            <label class="form-label">Doplnkové služby</label>
+            <div class="row">
+                <div class="col-6 col-md-4 col-lg-3 mb-2"
+                     th:each="service : ${T(com.booking.app.data.enums.AdditionalService).values()}">
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox"
+                               th:field="*{additionalServices}"
+                               th:value="${service.name()}"
+                               th:id="'service-' + ${service.name()}"/>
+                        <label class="form-check-label"
+                               th:for="'service-' + ${service.name()}"
+                               th:text="${service.displayName}"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ✅ Tlačidlá -->
+        <div class="mt-4">
+            <button type="submit" class="btn btn-success me-2">Rezervovať</button>
+            <a th:href="@{/offers/{id}(id=${offer.offerId})}" class="btn btn-secondary">Späť</a>
+        </div>
+    </form>
+</div>
+
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+</body>
+</html>

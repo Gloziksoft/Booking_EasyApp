@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="sk" xmlns:th="http://www.w3.org/1999/xhtml">
+<head th:replace="~{fragments/layout.html :: head}"></head>
+<body class="d-flex flex-column min-vh-100">
+
+<!-- Header section -->
+<header th:replace="~{fragments/layout.html :: header}"></header>
+
+<!-- Main content section -->
+<div class="container text-center py-5">
+  <!-- Error title -->
+  <h1 class="display-4 text-danger">500 - Chyba servera</h1>
+
+  <!-- Error description -->
+  <p class="lead">Niečo sa pokazilo na našej strane. Skúste to neskôr.</p>
+
+  <!-- Link to return to the main page -->
+  <a href="/offers" class="btn btn-primary">Späť na hlavnú stránku</a>
+</div>
+
+<!-- Footer section -->
+<footer th:replace="~{fragments/layout.html :: footer}"></footer>
+
+</body>
+</html>
