@@ -19,6 +19,10 @@ docker compose build app
 5. Reštartneš kontajner
 docker compose up -d app
 
-
 🔥 Hotovo
 Aplikácia beží s novým kódom.
+
+6. pull projektu a jar suboru po zmene kodu a vycistenie aj bordelu zaroven po image starom
+
+cd ~/Booking_EasyApp && git fetch --all && git reset --hard origin/main && mvn clean package -DskipTests && docker compose --profile prod up -d --build --force-recreate && docker image prune -f
+

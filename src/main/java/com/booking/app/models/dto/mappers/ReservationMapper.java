@@ -25,7 +25,6 @@ public interface ReservationMapper {
     @Mapping(source = "additionalServices", target = "additionalServices")
     ReservationDTO toDTO(ReservationEntity entity);
 
-    // --- DTO → Entity (IGNORUJEME VŠETKO, ČO NIE JE V ENTITE) ---
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "offer", ignore = true)
     @Mapping(target = "user", ignore = true)
