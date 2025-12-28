@@ -58,7 +58,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/booking_app
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: root
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_JPA_HIBERNATE_DDL_AUTO: none
 
       # ⚙️ SCHÉMA (dôležité!)
       SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: booking_app
