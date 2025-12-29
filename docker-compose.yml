@@ -1,4 +1,7 @@
 services:
+  # ===============================
+  # 🗄️ POSTGRES DATABASE
+  # ===============================
   db:
     image: postgres:17
     container_name: postgres_container_booking_app
@@ -10,11 +13,15 @@ services:
       POSTGRES_PASSWORD: root
       POSTGRES_DB: booking_app
     volumes:
+      # 👇 init.sql sa spustí len raz – pri prvom vytvorení volume
       - db_data_booking:/var/lib/postgresql/data
       - ./db-init-scripts:/docker-entrypoint-initdb.d:ro
     networks:
       - booking_network
 
+  # ===============================
+  # 🧰 PGADMIN (GUI pre DB)
+  # ===============================
   pgadmin:
     image: dpage/pgadmin4
     container_name: booking_pgadmin
@@ -29,8 +36,12 @@ services:
     networks:
       - booking_network
 
+  # ===============================
+  # 🚀 SPRING BOOT APP
+  # ===============================
   app:
-    image: ghcr.io/gloziksoft/booking_easyapp/booking-app:latest
+    profiles: ["prod"]
+    build: .
     container_name: springboot_booking_app
     restart: always
     depends_on:
@@ -38,17 +49,34 @@ services:
     ports:
       - "8080:8080"
     environment:
+      # 🌍 SPRING PROFILE
       SPRING_PROFILES_ACTIVE: prod
-      SPRING_APPLICATION_NAME: BookingApp
+
+      # 🗄️ DATABASE CONFIG
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/booking_app
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+
+      # ⚙️ SCHÉMA (dôležité!)
+      SPRING_JPA_PROPERTIES_HIBERNATE_DEFAULT_SCHEMA: booking_app
+      SPRING_SQL_INIT_SCHEMA: booking_app
+
+      # 📧 EMAIL CONFIG
       MAIL_USERNAME: test@gloziksoft.sk
       MAIL_PASSWORD: Baxe32kh754!
+
+      # 🧩 APP INFO
+      SPRING_APPLICATION_NAME: BookingApp
     networks:
       - booking_network
 
+# ===============================
+# 🧱 VOLUMES & NETWORKS
+# ===============================
 volumes:
   db_data_booking:
 
 networks:
   booking_network:
     driver: bridge
-
