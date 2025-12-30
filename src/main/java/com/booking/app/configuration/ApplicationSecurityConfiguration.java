@@ -21,15 +21,19 @@ public class ApplicationSecurityConfiguration {
      * Žiadny login, žiadne session, žiadne CSRF.
      */
     @Bean
-    @Order(1)
+    @Order(0)
     public SecurityFilterChain actuatorSecurity(HttpSecurity http) throws Exception {
-        return http
+        http
                 .securityMatcher("/actuator/**")
-                .authorizeHttpRequests(auth -> auth
-                        .anyRequest().permitAll()
-                )
+                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .requestCache(request -> request.disable())
+                .securityContext(securityContext -> securityContext.disable())
+                .sessionManagement(session -> session.disable())
                 .csrf(csrf -> csrf.disable())
-                .build();
+                .formLogin(form -> form.disable())
+                .logout(logout -> logout.disable());
+
+        return http.build();
     }
 
     /**
