@@ -21,34 +21,13 @@ public class ApplicationSecurityConfiguration {
      * Žiadny login, žiadne session, žiadne CSRF.
      */
     @Bean
-    @Order(0)
-    public SecurityFilterChain actuatorSecurity(HttpSecurity http) throws Exception {
-        http
-                .securityMatcher("/actuator/**")
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
-                .requestCache(request -> request.disable())
-                .securityContext(securityContext -> securityContext.disable())
-                .sessionManagement(session -> session.disable())
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable());
-
-        return http.build();
-    }
-
-    /**
-     * ============================
-     * APPLICATION SECURITY
-     * ============================
-     * Tvoja existujúca aplikačná logika.
-     */
-    @Bean
-    @Order(2)
+    @Order(1)
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
-        return http
+        http
+                .securityMatcher("/**")   // ⬅⬅⬅ TOTO TAM MUSÍ BYŤ
                 .authorizeHttpRequests(auth -> auth
 
-                        // Rezervácie: USER, ADMIN
+                        // Rezervácie
                         .requestMatchers(
                                 "/reservations",
                                 "/reservations/create/**",
@@ -56,7 +35,7 @@ public class ApplicationSecurityConfiguration {
                                 "/reservations/delete/**"
                         ).hasAnyRole("USER", "ADMIN")
 
-                        // Ponuky: ADMIN
+                        // Ponuky
                         .requestMatchers(
                                 "/offers/create",
                                 "/offers/create/**",
@@ -64,11 +43,7 @@ public class ApplicationSecurityConfiguration {
                                 "/offers/*/delete"
                         ).hasRole("ADMIN")
 
-                        // Reset hesla
-                        .requestMatchers(HttpMethod.GET, "/account/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/account/reset-password").permitAll()
-
-                        // Verejné cesty
+                        // Verejné
                         .requestMatchers(
                                 "/styles/**", "/scripts/**", "/images/**", "/fonts/**",
                                 "/", "/about-us",
@@ -82,7 +57,6 @@ public class ApplicationSecurityConfiguration {
                                 "/api/reservations/**"
                         ).permitAll()
 
-                        // Všetko ostatné vyžaduje login
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
@@ -96,9 +70,11 @@ public class ApplicationSecurityConfiguration {
                         .logoutUrl("/account/logout")
                         .logoutSuccessUrl("/")
                         .permitAll()
-                )
-                .build();
+                );
+
+        return http.build();
     }
+
 
     /**
      * ============================
