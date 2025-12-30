@@ -16,6 +16,9 @@ public class ApplicationSecurityConfiguration {
         return http
                 .authorizeHttpRequests()
 
+                .requestMatchers("/actuator/**").permitAll()
+
+
                 // Rezervácie: USER, ADMIN
                 .requestMatchers(
                         "/reservations",
