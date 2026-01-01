@@ -26,6 +26,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build JAR
+        run: mvn -B clean package -DskipTests    
+
       - name: Build and push image
         uses: docker/build-push-action@v5
         with:
