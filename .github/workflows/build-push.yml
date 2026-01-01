@@ -1,20 +1,19 @@
-name: Build and Push Booking App
+name: Build and Push Docker Image
 
 on:
   push:
-    branches:
-      - main
+    branches: [ main ]
 
 permissions:
   contents: read
-  packages: write   # 👈 nutné pre GHCR
+  packages: write
 
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
+      - name: Checkout source
         uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
@@ -27,11 +26,11 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push Docker image
+      - name: Build and push image
         uses: docker/build-push-action@v5
         with:
           context: .
           push: true
           tags: |
-            ghcr.io/gloziksoft/booking_easyapp/booking-app:${{ github.sha }}
-
+            ghcr.io/gloziksoft/APP_NAME:${{ github.sha }}
+            ghcr.io/gloziksoft/APP_NAME:prod
