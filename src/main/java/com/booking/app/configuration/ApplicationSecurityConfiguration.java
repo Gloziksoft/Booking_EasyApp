@@ -1,5 +1,6 @@
 package com.booking.app.configuration;
 
+import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -24,14 +25,12 @@ public class ApplicationSecurityConfiguration {
     @Order(0)
     public SecurityFilterChain actuatorSecurity(HttpSecurity http) throws Exception {
         http
-                .securityMatcher("/actuator/**")
+                .securityMatcher(EndpointRequest.toAnyEndpoint())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
                 .requestCache(request -> request.disable())
                 .securityContext(securityContext -> securityContext.disable())
                 .sessionManagement(session -> session.disable())
-                .csrf(csrf -> csrf.disable())
-                .formLogin(form -> form.disable())
-                .logout(logout -> logout.disable());
+                .csrf(csrf -> csrf.disable());
 
         return http.build();
     }
