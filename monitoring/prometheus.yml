@@ -17,10 +17,9 @@ scrape_configs:
   - job_name: booking-cadvisor
     static_configs:
       - targets:
-          - cadvisor:8080
+          - booking_cadvisor:8080
 
   - job_name: insurance-cadvisor
     static_configs:
       - targets:
           - 158.180.19.25:8082
-
