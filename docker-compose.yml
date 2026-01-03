@@ -1,4 +1,9 @@
+version: "3.9"
+
 services:
+  # ===============================
+  # 🗄️ POSTGRES DATABASE
+  # ===============================
   db:
     image: postgres:17
     restart: always
@@ -14,6 +19,9 @@ services:
     networks:
       - booking_network
 
+  # ===============================
+  # 🧰 PGADMIN
+  # ===============================
   pgadmin:
     image: dpage/pgadmin4
     restart: always
@@ -24,6 +32,9 @@ services:
     networks:
       - booking_network
 
+  # ===============================
+  # 🚀 BOOKING SPRING BOOT APP
+  # ===============================
   app:
     image: ghcr.io/gloziksoft/booking-app:prod
     restart: always
@@ -39,3 +50,67 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     networks:
       - booking_network
+
+  # ===============================
+  # 📈 PROMETHEUS (v2.x – STABLE)
+  # ===============================
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - booking_network
+
+  # ===============================
+  # 📊 GRAFANA
+  # ===============================
+  grafana:
+    image: grafana/grafana:10.4.2
+    restart: always
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_SERVER_ROOT_URL: http://localhost:3000
+    volumes:
+      - grafana_data:/var/lib/grafana
+    depends_on:
+      - prometheus
+    networks:
+      - booking_network
+
+  # ===============================
+  # 📦 CADVISOR
+  # ===============================
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    restart: always
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:rw
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+    networks:
+      - booking_network
+
+# ===============================
+# 🧱 VOLUMES
+# ===============================
+volumes:
+  db_data_booking:
+  grafana_data:
+
+# ===============================
+# 🌐 NETWORK
+# ===============================
+networks:
+  booking_network:
+    driver: bridge
