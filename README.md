@@ -414,4 +414,3 @@ LinkedIn: [https://www.linkedin.com/in/peter-gl%C3%B3zik-a7292b272](https://www.
 ## 📝 Licencia
 
 MIT License
-
