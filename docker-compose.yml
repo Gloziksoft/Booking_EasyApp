@@ -92,14 +92,18 @@ services:
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-      GF_SERVER_ROOT_URL: ${GRAFANA_ROOT_URL}
-      GF_SERVER_SERVE_FROM_SUB_PATH: ${GRAFANA_SUB_PATH}
+
+      # 👇 SUBPATH FIX (KRITICKÉ)
+      GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana
+      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
       - booking_network
+
 
 volumes:
   db_data_booking:
