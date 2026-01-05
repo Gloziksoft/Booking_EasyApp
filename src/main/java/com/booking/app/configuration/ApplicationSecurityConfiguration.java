@@ -27,6 +27,7 @@ public class ApplicationSecurityConfiguration {
         http
                 .securityMatcher(EndpointRequest.toAnyEndpoint())
                 .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .requiresChannel(channel -> channel.anyRequest().requiresInsecure())
                 .requestCache(request -> request.disable())
                 .securityContext(securityContext -> securityContext.disable())
                 .sessionManagement(session -> session.disable())
@@ -34,7 +35,6 @@ public class ApplicationSecurityConfiguration {
 
         return http.build();
     }
-
     /**
      * ============================
      * APPLICATION SECURITY
