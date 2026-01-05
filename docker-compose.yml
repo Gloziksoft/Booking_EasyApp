@@ -43,22 +43,11 @@ services:
     ports:
       - "8080:8080"
     environment:
-      # ✅ OFICIÁLNY A SPOĽAHLIVÝ SPRING OVERRIDE
-      SPRING_APPLICATION_JSON: >
-        {
-          "server": {
-            "address": "0.0.0.0",
-            "port": 8080
-          }
-        }
-
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
-
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
       MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
 
@@ -106,15 +95,17 @@ services:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
 
-      # SUBPATH FIX
+      # 👇 SUBPATH FIX (KRITICKÉ)
       GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
       - booking_network
+
 
 volumes:
   db_data_booking:
