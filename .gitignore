@@ -23,7 +23,6 @@ target/
 .settings
 .springBeans
 .sts4-cache
-.env
 
 ### IntelliJ IDEA ###
 .idea
@@ -43,3 +42,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# ===== ENV FILES =====
+env
+env.*
+.env
+.env.*
+
