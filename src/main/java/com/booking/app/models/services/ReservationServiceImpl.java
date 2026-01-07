@@ -3,13 +3,11 @@ package com.booking.app.models.services;
 import com.booking.app.data.entities.OfferEntity;
 import com.booking.app.data.entities.ReservationEntity;
 import com.booking.app.data.entities.UserEntity;
-import com.booking.app.data.enums.OfferTag;
 import com.booking.app.data.enums.ServiceType;
 import com.booking.app.data.repositories.OfferRepository;
 import com.booking.app.data.repositories.ReservationRepository;
 import com.booking.app.data.repositories.UserRepository;
 import com.booking.app.models.dto.ReservationDTO;
-import com.booking.app.models.dto.mappers.OfferMapper;
 import com.booking.app.models.dto.mappers.ReservationMapper;
 import com.booking.app.models.services.email.EmailService;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +18,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -34,12 +31,13 @@ public class ReservationServiceImpl implements ReservationService {
     @Value("${app.admin.email}")
     private String adminEmail;
 
-    public ReservationServiceImpl(ReservationRepository reservationRepository,
-                                  UserRepository userRepository,
-                                  OfferRepository offerRepository,
-                                  ReservationMapper reservationMapper,
-                                  EmailService emailService,
-                                  OfferMapper offerMapper) {
+    public ReservationServiceImpl(
+            ReservationRepository reservationRepository,
+            UserRepository userRepository,
+            OfferRepository offerRepository,
+            ReservationMapper reservationMapper,
+            EmailService emailService
+    ) {
         this.reservationRepository = reservationRepository;
         this.userRepository = userRepository;
         this.offerRepository = offerRepository;
@@ -47,7 +45,9 @@ public class ReservationServiceImpl implements ReservationService {
         this.emailService = emailService;
     }
 
-    // --- STRÁNKOVANÉ ČÍTANIE (Efektívne pre veľké dáta) ---
+    // ----------------------------------------------------------------
+    // PAGINOVANÉ ČÍTANIE
+    // ----------------------------------------------------------------
 
     @Override
     @Transactional(readOnly = true)
@@ -87,7 +87,31 @@ public class ReservationServiceImpl implements ReservationService {
                 .map(reservationMapper::toDTO);
     }
 
-    // --- KLASICKÉ CRUD ---
+    // ----------------------------------------------------------------
+    // NEPAGINOVANÉ (WRAPPER NAD PAGINÁCIOU)
+    // ----------------------------------------------------------------
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> findAll() {
+        return findAll(Pageable.unpaged()).getContent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> findByUserEmail(String email) {
+        return findByUserEmail(email, Pageable.unpaged()).getContent();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ReservationDTO> findByUserId(Long userId) {
+        return findByUserId(userId, Pageable.unpaged()).getContent();
+    }
+
+    // ----------------------------------------------------------------
+    // CRUD
+    // ----------------------------------------------------------------
 
     @Override
     @Transactional(readOnly = true)
@@ -102,12 +126,12 @@ public class ReservationServiceImpl implements ReservationService {
     public ReservationDTO create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
         validateReservationDates(dto, offer);
 
-        ReservationEntity reservation = new ReservationEntity();
-        updateReservationFields(reservation, dto, offer);
-        reservation.setUser(user);
-        reservation.setOffer(offer);
+        ReservationEntity entity = new ReservationEntity();
+        updateReservationFields(entity, dto, offer);
+        entity.setUser(user);
+        entity.setOffer(offer);
 
-        ReservationEntity saved = reservationRepository.save(reservation);
+        ReservationEntity saved = reservationRepository.save(entity);
         sendConfirmationEmailsAsync(user.getEmail(), adminEmail);
 
         return reservationMapper.toDTO(saved);
@@ -116,23 +140,22 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional
     public void update(Long id, ReservationDTO dto, org.springframework.security.core.userdetails.User user) {
-        ReservationEntity reservation = reservationRepository.findById(id)
+        ReservationEntity entity = reservationRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Reservation not found"));
 
-        if (!edit(reservationMapper.toDTO(reservation), user)) {
+        if (!edit(reservationMapper.toDTO(entity), user)) {
             throw new SecurityException("Not authorized");
         }
 
         OfferEntity offer = getOfferByIdInternal(dto.getOfferId());
-        updateReservationFields(reservation, dto, offer);
+        updateReservationFields(entity, dto, offer);
 
-        // Ak je admin, môže meniť aj špecifické polia
         if (isAdmin(user)) {
-            reservation.setPrice(Optional.ofNullable(dto.getPrice()).orElse(offer.getPrice()));
-            reservation.setServiceType(Optional.ofNullable(dto.getServiceType()).orElse(offer.getServiceType()));
+            entity.setPrice(Optional.ofNullable(dto.getPrice()).orElse(offer.getPrice()));
+            entity.setServiceType(Optional.ofNullable(dto.getServiceType()).orElse(offer.getServiceType()));
         }
 
-        reservationRepository.save(reservation);
+        reservationRepository.save(entity);
     }
 
     @Override
@@ -145,7 +168,9 @@ public class ReservationServiceImpl implements ReservationService {
         reservationRepository.deleteById(id);
     }
 
-    // --- POMOCNÉ METÓDY (Helpery) ---
+    // ----------------------------------------------------------------
+    // BUSINESS / SECURITY
+    // ----------------------------------------------------------------
 
     @Override
     public boolean edit(ReservationDTO reservation, org.springframework.security.core.userdetails.User user) {
@@ -153,40 +178,19 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private boolean isAdmin(org.springframework.security.core.userdetails.User user) {
-        return user.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+        return user.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    private void updateReservationFields(ReservationEntity entity, ReservationDTO dto, OfferEntity offer) {
-        entity.setStartDateTime(dto.getStartDateTime());
-        entity.setEndDateTime(dto.getEndDateTime());
-        entity.setAdults(dto.getAdults());
-        entity.setChildren(dto.getChildren());
-        entity.setDescription(offer.getDescription());
-        entity.setPrice(offer.getPrice());
-        entity.setServiceType(offer.getServiceType());
-        entity.setAdditionalServices(dto.getAdditionalServices() != null ? dto.getAdditionalServices() : Set.of());
-    }
-
-    private void validateReservationDates(ReservationDTO dto, OfferEntity offer) {
-        if (dto.getStartDateTime().isBefore(offer.getStartDateTime()) ||
-                dto.getEndDateTime().isAfter(offer.getEndDateTime())) {
-            throw new IllegalArgumentException("Dates outside of offer period.");
-        }
-    }
-
-    @Async
-    protected void sendConfirmationEmailsAsync(String customerEmail, String adminEmail) {
-        try {
-            emailService.sendReservationConfirmationEmail(customerEmail);
-            emailService.sendReservationConfirmationEmail(adminEmail);
-        } catch (Exception e) {
-            System.err.println("Email error: " + e.getMessage());
-        }
-    }
+    // ----------------------------------------------------------------
+    // PREPARE RESERVATION
+    // ----------------------------------------------------------------
 
     @Override
+    @Transactional(readOnly = true)
     public ReservationDTO prepareReservation(Long offerId, String userEmail) {
         OfferEntity offer = getOfferByIdInternal(offerId);
+
         ReservationDTO dto = new ReservationDTO();
         dto.setOfferId(offerId);
         dto.setUserEmail(userEmail);
@@ -195,31 +199,52 @@ public class ReservationServiceImpl implements ReservationService {
         dto.setPrice(offer.getPrice());
         dto.setAdults(2);
         dto.setAdditionalServices(new HashSet<>());
+
         return dto;
     }
 
-    // Ostatné drobné pomocné metódy z tvojho pôvodného kódu
+    // ----------------------------------------------------------------
+    // HELPERS
+    // ----------------------------------------------------------------
+
+    private void updateReservationFields(ReservationEntity e, ReservationDTO d, OfferEntity o) {
+        e.setStartDateTime(d.getStartDateTime());
+        e.setEndDateTime(d.getEndDateTime());
+        e.setAdults(d.getAdults());
+        e.setChildren(d.getChildren());
+        e.setDescription(o.getDescription());
+        e.setPrice(o.getPrice());
+        e.setServiceType(o.getServiceType());
+        e.setAdditionalServices(
+                d.getAdditionalServices() != null ? d.getAdditionalServices() : Set.of()
+        );
+    }
+
+    private void validateReservationDates(ReservationDTO dto, OfferEntity offer) {
+        if (dto.getStartDateTime().isBefore(offer.getStartDateTime())
+                || dto.getEndDateTime().isAfter(offer.getEndDateTime())) {
+            throw new IllegalArgumentException("Dates outside of offer period.");
+        }
+    }
+
+    @Async
+    protected void sendConfirmationEmailsAsync(String customerEmail, String adminEmail) {
+        emailService.sendReservationConfirmationEmail(customerEmail);
+        emailService.sendReservationConfirmationEmail(adminEmail);
+    }
+
     private UserEntity getUserByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("User not found"));
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new NoSuchElementException("User not found"));
     }
 
     private OfferEntity getOfferByIdInternal(Long offerId) {
-        return offerRepository.findById(offerId).orElseThrow(() -> new NoSuchElementException("Offer not found"));
+        return offerRepository.findById(offerId)
+                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
     }
 
-    @Override public OfferEntity getOfferById(Long offerId) { return getOfferByIdInternal(offerId); }
-    @Override public List<ReservationDTO> findAll() { return reservationRepository.findAll().stream().map(reservationMapper::toDTO).toList(); }
     @Override
-    public List<ReservationDTO> findByUserId(Long userId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new NoSuchElementException("User not found"));
-
-        // Použijeme verziu s Pageable.unpaged() aby sme nemuseli v repozitári držať List verziu
-        return reservationRepository.findByUser(user, Pageable.unpaged())
-                .getContent()
-                .stream()
-                .map(reservationMapper::toDTO)
-                .toList();
+    public OfferEntity getOfferById(Long offerId) {
+        return getOfferByIdInternal(offerId);
     }
-    @Override public List<ReservationDTO> findByUserEmail(String email) { return findByUserEmail(email, Pageable.unpaged()).getContent(); }
 }
