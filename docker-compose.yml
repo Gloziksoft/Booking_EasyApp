@@ -62,7 +62,7 @@ services:
     container_name: booking_cadvisor
     restart: always
     ports:
-      - "8081:8080"
+      - "18080:8080"
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
