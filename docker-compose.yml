@@ -1,9 +1,6 @@
-version: "3.9"
-
 services:
   db:
     image: postgres:17
-    container_name: booking_postgres
     restart: always
     ports:
       - "${POSTGRES_PORT}:5432"
@@ -19,7 +16,6 @@ services:
 
   pgadmin:
     image: dpage/pgadmin4
-    container_name: booking_pgadmin
     restart: always
     ports:
       - "8082:80"
@@ -36,7 +32,6 @@ services:
 
   app:
     image: ghcr.io/gloziksoft/booking-app:prod
-    container_name: springboot_booking_app
     restart: always
     depends_on:
       - db
@@ -50,6 +45,7 @@ services:
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: health,info,prometheus
       MANAGEMENT_ENDPOINT_PROMETHEUS_ENABLED: "true"
 
@@ -59,7 +55,6 @@ services:
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.49.1
-    container_name: booking_cadvisor
     restart: always
     ports:
       - "8083:8080"
@@ -74,7 +69,6 @@ services:
 
   prometheus:
     image: ${PROMETHEUS_IMAGE}
-    container_name: booking_prometheus
     restart: always
     ports:
       - "${PROMETHEUS_PORT}:9090"
@@ -89,25 +83,20 @@ services:
 
   grafana:
     image: grafana/grafana:10.4.2
-    container_name: booking_grafana
     restart: always
     ports:
       - "3000:3000"
     environment:
       GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
-
-      # 👇 SUBPATH FIX (KRITICKÉ)
       GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
-
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
     networks:
       - booking_network
-
 
 volumes:
   db_data_booking:
