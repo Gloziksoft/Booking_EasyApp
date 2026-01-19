@@ -27,7 +27,7 @@ public interface ReservationService {
 
     ReservationDTO prepareReservation(Long offerId, String userEmail);
 
-    ReservationDTO create(ReservationDTO reservationDTO, UserEntity user);
+    ReservationDTO create(ReservationDTO reservationDTO, UserEntity user, OfferEntity offer);
 
     OfferEntity getOfferById(Long offerId);
 

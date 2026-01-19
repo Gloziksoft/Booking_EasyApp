@@ -106,7 +106,7 @@ public class ReservationController {
                 .orElseThrow(() -> new ReservationNotFoundException("User not found"));
         OfferEntity offerEntity = offerService.findEntityById(reservationDTO.getOfferId());
 
-        ReservationDTO createdReservation = reservationService.create(reservationDTO, userEntity);
+        ReservationDTO createdReservation = reservationService.create(reservationDTO, userEntity, offerEntity);
 
         redirectAttributes.addFlashAttribute("message", "Potvrdenie rezervácie sme poslali na váš email.");
         return "redirect:/reservations/detail/" + createdReservation.getId();

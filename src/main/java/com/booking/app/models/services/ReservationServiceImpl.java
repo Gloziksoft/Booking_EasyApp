@@ -123,13 +123,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     @Transactional
-    public ReservationDTO create(ReservationDTO dto, UserEntity user) {
-
-        OfferEntity offer = offerRepository.findById(dto.getOfferId())
-                .orElseThrow(() -> new NoSuchElementException("Offer not found"));
-
-        offer.getTags().size();
-
+    public ReservationDTO create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
         validateReservationDates(dto, offer);
 
         ReservationEntity entity = new ReservationEntity();
