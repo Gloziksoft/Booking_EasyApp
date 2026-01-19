@@ -2,7 +2,6 @@ package com.booking.app.data.entities;
 
 import com.booking.app.data.enums.AdditionalService;
 import com.booking.app.data.enums.ServiceType;
-import com.booking.app.data.enums.OfferTag;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 

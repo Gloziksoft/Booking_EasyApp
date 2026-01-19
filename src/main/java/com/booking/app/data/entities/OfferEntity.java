@@ -30,7 +30,6 @@ public class OfferEntity {
     @Enumerated(EnumType.STRING)
     private ServiceType serviceType;
 
-    // Tagy doplnkových vlastností
     @ElementCollection(targetClass = OfferTag.class)
     @Enumerated(EnumType.STRING)
     @CollectionTable(name = "offer_tags", joinColumns = @JoinColumn(name = "offer_id"))
