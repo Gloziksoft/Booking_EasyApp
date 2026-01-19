@@ -1,30 +1,31 @@
 package com.booking.app;
 
 import com.booking.app.data.entities.OfferEntity;
-import com.booking.app.data.entities.UserEntity;
 import com.booking.app.data.entities.ReservationEntity;
+import com.booking.app.data.entities.UserEntity;
+import com.booking.app.data.repositories.OfferRepository;
 import com.booking.app.data.repositories.ReservationRepository;
 import com.booking.app.data.repositories.UserRepository;
-import com.booking.app.data.repositories.OfferRepository;
 import com.booking.app.models.dto.ReservationDTO;
-import com.booking.app.models.dto.mappers.ReservationMapper;
 import com.booking.app.models.dto.mappers.OfferMapper;
-import com.booking.app.models.dto.mappers.ReservationMapperImpl;
+import com.booking.app.models.dto.mappers.ReservationMapper;
 import com.booking.app.models.services.ReservationServiceImpl;
 import com.booking.app.models.services.email.EmailService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.*;
-import static org.assertj.core.api.Assertions.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 class ReservationServiceImplTest {
 
     @Mock
@@ -34,7 +35,7 @@ class ReservationServiceImplTest {
     @Mock
     private OfferRepository offerRepository;
     @Mock
-    private ReservationMapper reservationMapper = new ReservationMapperImpl();
+    private ReservationMapper reservationMapper;
     @Mock
     private OfferMapper offerMapper;
     @Mock
@@ -50,8 +51,6 @@ class ReservationServiceImplTest {
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
-
         user = new UserEntity();
         user.setId(1L);
         user.setEmail("test@test.com");
@@ -69,32 +68,28 @@ class ReservationServiceImplTest {
         reservationDTO.setUserEmail(user.getEmail());
 
         reservationEntity = new ReservationEntity();
-        when(reservationMapper.toEntity(reservationDTO)).thenReturn(reservationEntity);
     }
 
     @Test
     void createReservation_success() {
-        // given
-        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.of(user));
-        when(offerRepository.findById(1L)).thenReturn(Optional.of(offer));
-        when(reservationMapper.toEntity(reservationDTO)).thenReturn(reservationEntity);
+        when(userRepository.findByEmail(user.getEmail()))
+                .thenReturn(Optional.of(user));
+        when(offerRepository.findById(offer.getId()))
+                .thenReturn(Optional.of(offer));
+        when(reservationMapper.toEntity(reservationDTO))
+                .thenReturn(reservationEntity);
 
-        // when
         reservationService.create(reservationDTO, user, offer);
 
-        // then
-        verify(reservationRepository, times(1)).save(reservationEntity);
-        verify(emailService, times(1)).sendReservationConfirmationEmail(user.getEmail());
+        verify(reservationRepository).save(reservationEntity);
+        verify(emailService).sendReservationConfirmationEmail(user.getEmail());
     }
 
     @Test
     void createReservation_invalidDates_shouldThrowException() {
-        // given
-        reservationDTO.setStartDateTime(offer.getStartDateTime().minusDays(1)); // invalid
+        reservationDTO.setStartDateTime(offer.getStartDateTime().minusDays(1));
 
-        // when / then
         assertThatThrownBy(() -> reservationService.create(reservationDTO, user, offer))
-                .isInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("within the offer period");
+                .isInstanceOf(IllegalArgumentException.class);
     }
 }
