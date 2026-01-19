@@ -52,5 +52,5 @@ jobs:
           key: ${{ secrets.DEPLOY_SSH_KEY }}
           script: |
             cd /opt/booking-easyapp
-            docker compose pull
-            docker compose up -d --force-recreate
+            docker compose -p booking_local pull
+            docker compose -p booking_local up -d --force-recreate
