@@ -53,6 +53,10 @@ jobs:
           script: |
             cd /opt/booking-easyapp
 
-            docker compose down --remove-orphans
-            docker compose pull
-            docker compose up -d
+            echo "=== Deploy BOOKING app ==="
+            docker compose -p booking -f docker-compose.app.yml pull
+            docker compose -p booking -f docker-compose.app.yml up -d
+
+            echo "=== Deploy MONITORING ==="
+            docker compose -p monitoring -f docker-compose.monitoring.yml pull
+            docker compose -p monitoring -f docker-compose.monitoring.yml up -d
