@@ -51,4 +51,3 @@ volumes:
 networks:
   booking_network:
     external: true
-
