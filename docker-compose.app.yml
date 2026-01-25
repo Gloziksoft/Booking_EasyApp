@@ -2,6 +2,8 @@ services:
   db:
     image: postgres:17
     restart: always
+    profiles:
+      - db
     ports:
       - "${POSTGRES_PORT}:5432"
     environment:
