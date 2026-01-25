@@ -124,6 +124,7 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional
     public ReservationDTO create(ReservationDTO dto, UserEntity user, OfferEntity offer) {
+
         validateReservationDates(dto, offer);
 
         ReservationEntity entity = new ReservationEntity();
@@ -132,10 +133,12 @@ public class ReservationServiceImpl implements ReservationService {
         entity.setOffer(offer);
 
         ReservationEntity saved = reservationRepository.save(entity);
+
         sendConfirmationEmailsAsync(user.getEmail(), adminEmail);
 
         return reservationMapper.toDTO(saved);
     }
+
 
     @Override
     @Transactional

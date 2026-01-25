@@ -14,8 +14,6 @@ import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<ReservationEntity, Long> {
 
-    // --- ZÁKLADNÉ VYHĽADÁVANIE S GRAFOM (Efektívne načítanie relácií) ---
-    // EntityGraph zabezpečí, že sa informácie o ponuke a užívateľovi načítajú v jednom dopyte
     @EntityGraph(attributePaths = {"offer", "user"})
     @Query("SELECT DISTINCT r FROM ReservationEntity r")
     Page<ReservationEntity> findAll(Pageable pageable);
