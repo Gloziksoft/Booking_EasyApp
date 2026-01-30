@@ -62,7 +62,8 @@
         <div class="mb-3">
             <label class="form-label">Vlastnosti ponuky</label>
             <input type="text" class="form-control"
-                   th:value="${#strings.arrayJoin(reservation.tags.toArray(), ', ')}" readonly/>
+                   th:value="${reservation.tags != null ? #lists.join(reservation.tags, ', ') : ''}"
+                   readonly/>
         </div>
 
         <!-- Počet osôb -->
