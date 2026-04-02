@@ -45,7 +45,7 @@ Spring Boot app sa spúšťa z IntelliJ IDEA
 Profil: local
 
 Spustenie databázy lokálne:
-docker compose -f docker-compose.app.yml up -d db
+docker compose -f docker-compose.dev.yml up -d
 
 Spustenie aplikácie:
 
