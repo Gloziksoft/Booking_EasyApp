@@ -45,11 +45,18 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
+
+      # JVM tuning (OK máš)
       JAVA_TOOL_OPTIONS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0"
 
-      # 🔥 KRITICKÉ PRE PROMETHEUS (LATENCY FIX)
+      # 🔥 PROMETHEUS / METRICS
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "*"
+
+      # 🔥 HISTOGRAM (NAJDOLEŽITEJŠIE)
       MANAGEMENT_METRICS_DISTRIBUTION_PERCENTILES_HISTOGRAM_HTTP_SERVER_REQUESTS: "true"
-      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "prometheus"
+
+      # 🔥 OPTIONAL (ale veľmi dobré na pohovor)
+      MANAGEMENT_METRICS_TAGS_APPLICATION: "booking-app"
 
     networks:
       - booking_network
