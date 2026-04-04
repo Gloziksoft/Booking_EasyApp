@@ -54,20 +54,26 @@ jobs:
             set -e
             cd /opt/booking-easyapp
 
-            echo "=== Deploy BOOKING APP (APP ONLY) ==="
+            echo "=== DEPLOY BOOKING APP ==="
 
-            # Pull new image
-            docker pull ghcr.io/gloziksoft/booking-app:prod
+            # 🔥 FORCE pull latest image
+            docker compose -p booking -f docker-compose.app.yml pull app
 
-            # Stop + remove ONLY app container (not db!)
-            docker stop booking-easyapp-app-1 || true
-            docker rm booking-easyapp-app-1 || true
+            # 🔥 FORCE recreate container (KRITICKÉ)
+            docker compose \
+              --pull always \
+              --force-recreate \
+              -p booking \
+              -f docker-compose.app.yml \
+              up -d app
 
-            # Start app only
-            docker compose -p booking -f docker-compose.app.yml up -d app
+            echo "=== VERIFY IMAGE ==="
+            docker inspect booking-app-1 | grep Image || true
 
-            echo "=== Deploy MONITORING ==="
+            echo "=== VERIFY HISTOGRAM ==="
+            curl -s http://localhost:8080/actuator/prometheus | grep bucket || true
+
+            echo "=== DEPLOY MONITORING ==="
             docker compose -p monitoring -f docker-compose.monitoring.yml up -d
 
             echo "=== DEPLOY FINISHED ==="
-
