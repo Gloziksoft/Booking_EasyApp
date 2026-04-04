@@ -36,6 +36,7 @@ services:
 
   app:
     image: ghcr.io/gloziksoft/booking-app:prod
+    mem_limit: 512m
     restart: always
     depends_on:
       - db
