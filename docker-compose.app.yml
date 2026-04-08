@@ -31,7 +31,6 @@ services:
       - booking_network
 
   app:
-    container_name: booking-app
     image: ghcr.io/gloziksoft/booking-app:prod
     restart: always
     depends_on:
@@ -44,7 +43,6 @@ services:
       - "8080:8080"
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE}
-
       JAVA_TOOL_OPTIONS: "-XX:+UseContainerSupport -XX:MaxRAMPercentage=60.0"
 
       MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: "prometheus"
@@ -59,3 +57,4 @@ volumes:
 
 networks:
   booking_network:
+    external: true
