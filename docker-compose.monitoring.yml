@@ -6,9 +6,11 @@ services:
       - "8081:8080"
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:ro
+      - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro   # 🔥 pridane
+    privileged: true                                   # 🔥 pridane
     restart: unless-stopped
     networks:
       - booking_network
@@ -19,9 +21,7 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      # 🔴 CONFIG MUSÍ BYŤ TU
       - /opt/booking-easyapp/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      # 🔴 DATA MUSIA BYŤ PERSISTENTNÉ
       - prometheus_data:/prometheus
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -37,11 +37,9 @@ services:
     ports:
       - "3000:3000"
     environment:
-      # 🔴 KRITICKÉ pre subpath /grafana (NGINX / reverse proxy)
       GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
-      # 🔴 HISTÓRIA DASHBOARDOV
       - booking-easyapp_grafana_data:/var/lib/grafana
     restart: unless-stopped
     networks:
