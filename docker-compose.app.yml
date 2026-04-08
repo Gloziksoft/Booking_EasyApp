@@ -31,6 +31,7 @@ services:
       - booking_network
 
   app:
+    container_name: booking-app
     image: ghcr.io/gloziksoft/booking-app:prod
     restart: always
     depends_on:
