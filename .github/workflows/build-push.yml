@@ -55,21 +55,22 @@ jobs:
             cd /opt/booking-easyapp
 
             echo "=== SYNC REPO ==="
+            git reset --hard
             git pull
 
             echo "=== DEPLOY BOOKING APP ==="
-            docker compose -f docker-compose.app.yml pull
-            docker compose -f docker-compose.app.yml up -d --force-recreate --remove-orphans
+            docker compose -p booking-easyapp -f docker-compose.app.yml pull
+            docker compose -p booking-easyapp -f docker-compose.app.yml up -d --force-recreate --remove-orphans
 
             echo "=== VERIFY IMAGE ==="
-            docker inspect booking-app-1 | grep Image || true
+            docker inspect booking-easyapp-app-1 | grep Image || true
 
             echo "=== VERIFY METRICS ==="
             curl -s http://localhost:8080/actuator/prometheus | grep http_server_requests_seconds_bucket || true
 
             echo "=== DEPLOY MONITORING ==="
-            docker compose -f docker-compose.monitoring.yml pull
-            docker compose -f docker-compose.monitoring.yml up -d --force-recreate --remove-orphans
+            docker compose -p booking-easyapp -f docker-compose.monitoring.yml pull
+            docker compose -p booking-easyapp -f docker-compose.monitoring.yml up -d --force-recreate --remove-orphans
 
             echo "=== FINAL STATUS ==="
             docker ps
