@@ -54,17 +54,16 @@ jobs:
             set -e
             cd /opt/booking-easyapp
 
+            echo "=== UPDATE CODE ==="
+            git pull origin main
+
             echo "=== DEPLOY BOOKING APP ==="
 
             # Pull latest image
             docker pull ghcr.io/gloziksoft/booking-app:prod
 
-            # Stop + remove old container
-            docker stop booking-easyapp-app-1 || true
-            docker rm booking-easyapp-app-1 || true
-
-            # Start new container
-            docker compose -p booking -f docker-compose.app.yml up -d app
+            echo "=== START SERVICES ==="
+            docker compose -p booking -f docker-compose.app.yml up -d
 
             echo "=== VERIFY IMAGE ==="
             docker inspect booking-easyapp-app-1 | grep Image || true
