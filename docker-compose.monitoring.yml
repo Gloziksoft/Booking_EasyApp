@@ -4,15 +4,13 @@ services:
     container_name: cadvisor
     ports:
       - "8081:8080"
-    mem_limit: 200m
-    cpus: 0.3
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro
-    privileged: true
+      - /var/run/docker.sock:/var/run/docker.sock:ro   # 🔥 pridane
+    privileged: true                                   # 🔥 pridane
     restart: unless-stopped
     networks:
       - booking_network
@@ -22,8 +20,6 @@ services:
     container_name: prometheus
     ports:
       - "9090:9090"
-    mem_limit: 256m
-    cpus: 0.3
     volumes:
       - /opt/booking-easyapp/monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
       - prometheus_data:/prometheus
@@ -40,8 +36,6 @@ services:
     container_name: grafana
     ports:
       - "3000:3000"
-    mem_limit: 128m
-    cpus: 0.2
     environment:
       GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
@@ -51,12 +45,11 @@ services:
     networks:
       - booking_network
 
-# 🔥 DÔLEŽITÉ — toto ti chýbalo
+networks:
+  booking_network:
+    external: true
+
 volumes:
   prometheus_data:
   booking-easyapp_grafana_data:
     external: true
-
-networks:
-  booking_network:
-    external: true  
