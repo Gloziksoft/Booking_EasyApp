@@ -29,6 +29,7 @@ services:
       PGADMIN_CONFIG_SERVER_MODE: 'True'
       PGADMIN_CONFIG_ENHANCED_COOKIE_PROTECTION: 'False'
       SCRIPT_NAME: /pgadmin
+      PGADMIN_CONFIG_APPLICATION_ROOT: /pgadmin
     depends_on:
       - db
     networks:
