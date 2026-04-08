@@ -6,7 +6,7 @@ scrape_configs:
     metrics_path: /actuator/prometheus
     static_configs:
       - targets:
-          - booking-app:8080
+          - app:8080
 
   - job_name: insurance-app
     metrics_path: /actuator/prometheus
