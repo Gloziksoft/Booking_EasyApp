@@ -50,3 +50,13 @@ services:
     restart: unless-stopped
     networks:
       - booking_network
+
+# 🔥 DÔLEŽITÉ — toto ti chýbalo
+volumes:
+  prometheus_data:
+  booking-easyapp_grafana_data:
+    external: true
+
+networks:
+  booking_network:
+    external: true
