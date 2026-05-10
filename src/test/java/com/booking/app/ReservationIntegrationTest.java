@@ -9,8 +9,10 @@ import com.booking.app.models.services.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -19,6 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @AutoConfigureTestDatabase
+@ActiveProfiles("test")
 class ReservationIntegrationTest {
 
     @Autowired
@@ -26,6 +29,9 @@ class ReservationIntegrationTest {
 
     @Autowired
     private ReservationRepository reservationRepository;
+
+    @Value("${app.admin.email:default@test.com}")
+    private String adminEmail;
 
     private UserEntity user;
     private OfferEntity offer;
