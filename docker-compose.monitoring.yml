@@ -7,7 +7,7 @@ services:
       - "-logtostderr"
       - "-docker_only=true"
       - "-housekeeping_interval=30s"
-      - "-disable_metrics=advtcp,cpu_topology,cpuset,disk,diskIO,memory_numa,process,sched"
+      - "-disable_metrics=advtcp,cpu_topology,cpuset,disk,diskIO,memory_numa,sched"
 
     ports:
       - "8081:8080"
