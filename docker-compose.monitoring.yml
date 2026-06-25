@@ -6,20 +6,15 @@ services:
       - "8081:8080"
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:rw
+      - /var/run:/var/run:ro                  # späť na RO ako vo v0.49.1
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
-      - /var/run/docker.sock:/var/run/docker.sock:ro   # 🔥 pridane
-    privileged: true                                   # 🔥 pridane
+      - /var/run/docker.sock:/var/run/docker.sock:ro  # ponechať kvôli Docker 29
+    privileged: true
     restart: unless-stopped
     networks:
       - booking_network
-      
-    command:
-      - "--housekeeping_interval=5s"
-      - "--allow_dynamic_housekeeping=true"
-      - "--disable_metrics=percpu,process,sched,tcp,udp,diskIO"
-  
+
   prometheus:
     image: prom/prometheus:v2.51.2
     container_name: prometheus
