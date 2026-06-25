@@ -14,7 +14,11 @@ services:
     restart: unless-stopped
     networks:
       - booking_network
-
+      
+    command:
+      - "--housekeeping_interval=5s"
+      - "--allow_dynamic_housekeeping=true"
+      - "--disable_metrics=percpu,process,sched,tcp,udp,diskIO"
   
   prometheus:
     image: prom/prometheus:v2.51.2
