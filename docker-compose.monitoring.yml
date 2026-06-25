@@ -2,10 +2,6 @@ services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
-    
-    cpus: "0.50"        # max. 50 % jedného CPU
-    cpu_shares: 128     # nízka priorita pri záťaži
-    
     ports:
       - "8081:8080"
     volumes:
