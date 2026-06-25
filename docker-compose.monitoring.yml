@@ -15,6 +15,10 @@ services:
     networks:
       - booking_network
 
+    command:
+      - --housekeeping_interval=5s
+      - --allow_dynamic_housekeeping=true
+  
   prometheus:
     image: prom/prometheus:v2.51.2
     container_name: prometheus
