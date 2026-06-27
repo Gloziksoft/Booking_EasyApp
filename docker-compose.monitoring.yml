@@ -1,11 +1,6 @@
 services:
   cadvisor:
     image: gcr.io/cadvisor/cadvisor:v0.55.1
-    command:
-      - --housekeeping_interval=5s
-      - --max_housekeeping_interval=10s
-    cpus: "0.15"
-    mem_limit: 128m
     container_name: cadvisor
     ports:
       - "8081:8080"
