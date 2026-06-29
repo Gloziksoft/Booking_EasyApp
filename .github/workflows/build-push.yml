@@ -72,6 +72,6 @@ jobs:
             curl -s http://localhost:8080/actuator/prometheus | grep http_server_requests_seconds_bucket || true
 
             echo "=== DEPLOY MONITORING ==="
-            docker compose -p monitoring -f docker-compose.monitoring.yml up -d
+            docker compose -f docker-compose.monitoring.yml up -d
 
             echo "=== DEPLOY FINISHED ==="
