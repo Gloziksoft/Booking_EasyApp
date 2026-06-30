@@ -6,7 +6,7 @@ services:
     command:
       - -logtostderr
       - --docker_only=true
-      - --enable_metrics=cpu,memory,network,disk
+      - --enable_metrics=cpu,memory,network
 
     ports:
       - "8081:8080"
