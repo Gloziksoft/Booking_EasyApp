@@ -62,3 +62,39 @@ Aktualizácia infraštruktúry alebo monitoringu môže zmeniť spotrebu
 systémových prostriedkov aj bez zmeny samotnej aplikácie. Po
 aktualizácii Dockeru, cAdvisor alebo iných infraštruktúrnych komponentov
 je preto vhodné overiť správanie monitoringu.
+
+### 2026-09-02 — Booking & Insurance App: Automatic Docker Image Cleanup
+
+Added automatic Docker image cleanup to the production deployment workflows.
+
+After a successful application deployment, the VM now runs:
+
+```bash
+docker image prune -f
+```
+
+This removes unused dangling Docker images created by previous deployments
+and prevents old application image layers from unnecessarily consuming disk space.
+
+Booking production test:
+
+Before cleanup:
+
+Docker images: 24
+Image storage: 6.455 GB
+Reclaimable: 3.042 GB
+VM disk usage: ~41%
+
+After automatic cleanup:
+
+Docker images: 6
+Image storage: 2.988 GB
+Reclaimable: 0 B
+VM disk usage: ~33%
+
+The cleanup removed old unused images while keeping all active application,
+database, and monitoring containers running.
+
+The same automatic cleanup approach is now being applied to the Insurance App production deployment.
+
+===================================================================================================
