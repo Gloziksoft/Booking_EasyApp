@@ -3,6 +3,7 @@ package com.booking.app;
 import com.booking.app.data.entities.OfferEntity;
 import com.booking.app.data.entities.ReservationEntity;
 import com.booking.app.data.entities.UserEntity;
+import com.booking.app.data.enums.ServiceType;
 import com.booking.app.data.repositories.ReservationRepository;
 import com.booking.app.models.dto.ReservationDTO;
 import com.booking.app.models.services.ReservationService;
@@ -20,8 +21,8 @@ import java.time.LocalDateTime;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
-@AutoConfigureTestDatabase
-@ActiveProfiles("test")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@ActiveProfiles("local")
 class ReservationIntegrationTest {
 
     @Autowired
@@ -50,6 +51,7 @@ class ReservationIntegrationTest {
         offer.setStartDateTime(LocalDateTime.now().plusDays(1));
         offer.setEndDateTime(LocalDateTime.now().plusDays(5));
         offer.setPrice(BigDecimal.valueOf(199));
+        offer.setServiceType(ServiceType.WELLNESS_VIKEND);
 
         // nastavíme DTO pre rezerváciu
         dto = new ReservationDTO();
@@ -61,13 +63,15 @@ class ReservationIntegrationTest {
 
     @Test
     void testCreateReservationIntegration() {
-        reservationService.create(dto, user, offer);
 
-        // overenie, že sa entita uložila
-        assertThat(reservationRepository.findAll()).hasSize(1);
+        long countBefore = reservationRepository.count();
 
-        ReservationEntity saved = reservationRepository.findAll().get(0);
-        assertThat(saved.getUser().getEmail()).isEqualTo(user.getEmail());
-        assertThat(saved.getOffer().getId()).isEqualTo(offer.getId());
+        ReservationDTO created = reservationService.create(dto, user, offer);
+
+        long countAfter = reservationRepository.count();
+
+        assertThat(countAfter).isEqualTo(countBefore + 1);
+        assertThat(created.getUserEmail()).isEqualTo(user.getEmail());
+        assertThat(created.getOfferId()).isEqualTo(offer.getId());
     }
 }

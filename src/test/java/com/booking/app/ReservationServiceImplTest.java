@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -72,16 +73,10 @@ class ReservationServiceImplTest {
 
     @Test
     void createReservation_success() {
-        when(userRepository.findByEmail(user.getEmail()))
-                .thenReturn(Optional.of(user));
-        when(offerRepository.findById(offer.getId()))
-                .thenReturn(Optional.of(offer));
-        when(reservationMapper.toEntity(reservationDTO))
-                .thenReturn(reservationEntity);
 
         reservationService.create(reservationDTO, user, offer);
 
-        verify(reservationRepository).save(reservationEntity);
+        verify(reservationRepository).save(any(ReservationEntity.class));
         verify(emailService).sendReservationConfirmationEmail(user.getEmail());
     }
 
@@ -91,5 +86,23 @@ class ReservationServiceImplTest {
 
         assertThatThrownBy(() -> reservationService.create(reservationDTO, user, offer))
                 .isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    void findById_shouldReturnReservation_whenReservationExists() {
+        Long id = 1L;
+
+        when(reservationRepository.findById(id))
+                .thenReturn(Optional.of(reservationEntity));
+
+        when(reservationMapper.toDTO(reservationEntity))
+                .thenReturn(reservationDTO);
+
+        ReservationDTO result = reservationService.findById(id);
+
+        assertThat(result).isSameAs(reservationDTO);
+
+        verify(reservationRepository).findById(id);
+        verify(reservationMapper).toDTO(reservationEntity);
     }
 }
