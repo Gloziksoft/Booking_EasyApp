@@ -62,9 +62,6 @@ jobs:
             # Pull latest image
             docker pull ghcr.io/gloziksoft/booking-app:prod
 
-            echo "=== REMOVE OLD APP STACK ==="
-            docker compose -p booking-app -f docker-compose.app.yml down
-
             echo "=== START BOOKING APP ==="
             docker compose -p booking-app -f docker-compose.app.yml up -d
 
@@ -73,9 +70,6 @@ jobs:
 
             echo "=== VERIFY METRICS ==="
             curl -s http://localhost:8080/actuator/prometheus | grep http_server_requests_seconds_bucket || true
-
-            echo "=== REMOVE OLD MONITORING STACK ==="
-            docker compose -p booking-easyapp -f docker-compose.monitoring.yml down
 
             echo "=== DEPLOY MONITORING ==="
             docker compose -p monitoring -f docker-compose.monitoring.yml up -d
