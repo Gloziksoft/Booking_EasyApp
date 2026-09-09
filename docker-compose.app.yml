@@ -1,5 +1,6 @@
 services:
   db:
+    container_name: booking-db
     image: postgres:17
     restart: always
     ports:
@@ -15,6 +16,7 @@ services:
       - booking_network
 
   pgadmin:
+    container_name: pgadmin
     image: dpage/pgadmin4
     restart: always
     ports:
@@ -31,6 +33,7 @@ services:
       - booking_network
 
   app:
+    container_name: booking-app
     image: ghcr.io/gloziksoft/booking-app:prod
     restart: always
     depends_on:

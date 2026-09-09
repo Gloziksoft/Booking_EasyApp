@@ -1,7 +1,7 @@
 services:
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:v0.55.1
     container_name: cadvisor
+    image: gcr.io/cadvisor/cadvisor:v0.55.1
 
     command:
       - -logtostderr
@@ -24,8 +24,8 @@ services:
       - booking_network
 
   prometheus:
-    image: prom/prometheus:v2.51.2
     container_name: prometheus
+    image: prom/prometheus:v2.51.2
     ports:
       - "9090:9090"
     volumes:
@@ -40,15 +40,15 @@ services:
       - booking_network
 
   grafana:
-    image: grafana/grafana:10.4.2
     container_name: grafana
+    image: grafana/grafana:10.4.2
     ports:
       - "3000:3000"
     environment:
       GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana/
       GF_SERVER_SERVE_FROM_SUB_PATH: "true"
     volumes:
-      - booking-easyapp_grafana_data:/var/lib/grafana
+      - grafana_data:/var/lib/grafana
     restart: unless-stopped
     networks:
       - booking_network
@@ -59,5 +59,8 @@ networks:
 
 volumes:
   prometheus_data:
-  booking-easyapp_grafana_data:
+    name: prometheus-data
+
+  grafana_data:
+    name: grafana-data
     external: true
