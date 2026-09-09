@@ -63,4 +63,3 @@ volumes:
 
   grafana_data:
     name: grafana-data
-    external: true
