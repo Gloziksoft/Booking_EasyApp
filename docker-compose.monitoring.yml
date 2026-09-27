@@ -45,8 +45,8 @@ services:
     ports:
       - "3000:3000"
     environment:
-      GF_SERVER_ROOT_URL: https://bookingapp.gloziksoft.sk/grafana/
-      GF_SERVER_SERVE_FROM_SUB_PATH: "true"
+      GF_SERVER_ROOT_URL: http://localhost:13000/
+      GF_SERVER_SERVE_FROM_SUB_PATH: "false"
     volumes:
       - grafana_data:/var/lib/grafana
     restart: unless-stopped
