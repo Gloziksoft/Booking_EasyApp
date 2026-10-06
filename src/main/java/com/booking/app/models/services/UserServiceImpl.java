@@ -3,6 +3,7 @@ package com.booking.app.models.services;
 import com.booking.app.data.entities.UserEntity;
 import com.booking.app.data.enums.Role;
 import com.booking.app.data.repositories.UserRepository;
+import com.booking.app.models.dto.RegistrationDTO;
 import com.booking.app.models.dto.UserDTO;
 import com.booking.app.models.exceptions.DuplicateEmailException;
 import com.booking.app.models.exceptions.PasswordsDoNotEqualException;
@@ -55,27 +56,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
      * Passwords are encoded before saving.
      * Assigns roles based on isAdmin flag.
      *
-     * @param userDTO user data transfer object
+     * @param registrationDTO user data transfer object
      * @param isAdmin flag to assign ADMIN role if true, otherwise USER role
      * @return the created UserEntity
      * @throws PasswordsDoNotEqualException if passwords don't match
      * @throws DuplicateEmailException if email already exists
      */
     @Override
-    public UserEntity create(UserDTO userDTO, boolean isAdmin) {
-        if (!userDTO.getPassword().equals(userDTO.getConfirmPassword())) {
+    public UserEntity create(RegistrationDTO registrationDTO, boolean isAdmin) {
+        if (!registrationDTO.getPassword().equals(registrationDTO.getConfirmPassword())) {
             throw new PasswordsDoNotEqualException("Passwords do not match");
         }
 
-        if (userRepository.findByEmail(userDTO.getEmail()).isPresent()) {
+        if (userRepository.findByEmail(registrationDTO.getEmail()).isPresent()) {
             throw new DuplicateEmailException("Email already exists");
         }
 
         UserEntity userEntity = new UserEntity();
-        userEntity.setEmail(userDTO.getEmail());
-        userEntity.setFirstName(userDTO.getFirstName());
-        userEntity.setLastName(userDTO.getLastName());
-        userEntity.setPassword(passwordEncoder.encode(userDTO.getPassword()));
+        userEntity.setEmail(registrationDTO.getEmail());
+        userEntity.setFirstName(registrationDTO.getFirstName());
+        userEntity.setLastName(registrationDTO.getLastName());
+        userEntity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
         userEntity.setRole(isAdmin ? Role.ADMIN : Role.USER);
 
         Set<String> roles = new HashSet<>();
@@ -84,6 +85,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         } else {
             roles.add("USER");
         }
+
         return userRepository.save(userEntity);
     }
 

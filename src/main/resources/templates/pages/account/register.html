@@ -11,7 +11,7 @@
     <h2 class="text-center mb-4">Registrácia nového používateľa</h2>
 
     <!-- Registration form binding to userDTO object, POST method -->
-    <form th:action="@{/account/register}" th:object="${userDTO}" method="post" novalidate>
+    <form th:action="@{/account/register}" th:object="${registrationDTO}" method="post" novalidate>
 
         <!-- First name input with validation error display -->
         <div>
@@ -34,18 +34,36 @@
             <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red;"></p>
         </div>
 
-        <!-- Password input with validation error display -->
+        <!-- Password input -->
         <div>
             <label for="password">Heslo:</label>
             <input type="password" id="password" th:field="*{password}" required/>
-            <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" style="color:red;"></p>
+
+            <p th:if="${#strings.isEmpty(registrationDTO.password) and #fields.hasErrors('password')}"
+               style="color:red;">
+                Heslo je povinné.
+            </p>
+
+            <p th:if="${!#strings.isEmpty(registrationDTO.password) and #fields.hasErrors('password')}"
+               th:errors="*{password}"
+               style="color:red;">
+            </p>
         </div>
 
-        <!-- Confirm password input with validation error display -->
+        <!-- Confirm password input -->
         <div>
             <label for="confirmPassword">Potvrď heslo:</label>
             <input type="password" id="confirmPassword" th:field="*{confirmPassword}" required/>
-            <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" style="color:red;"></p>
+
+            <p th:if="${#strings.isEmpty(registrationDTO.confirmPassword) and #fields.hasErrors('confirmPassword')}"
+               style="color:red;">
+                Potvrdenie hesla je povinné.
+            </p>
+
+            <p th:if="${!#strings.isEmpty(registrationDTO.confirmPassword) and #fields.hasErrors('confirmPassword')}"
+               th:errors="*{confirmPassword}"
+               style="color:red;">
+            </p>
         </div>
 
         <!-- Submit button -->

@@ -1,6 +1,7 @@
 package com.booking.app.models.services;
 
 import com.booking.app.data.entities.UserEntity;
+import com.booking.app.models.dto.RegistrationDTO;
 import com.booking.app.models.dto.UserDTO;
 
 import java.util.List;
@@ -29,13 +30,13 @@ public interface UserService {
     UserEntity save(UserEntity user);
 
     /**
-     * Creates a new user from the provided UserDTO.
+     * Creates a new user from the provided RegistrationDTO.
      *
-     * @param userDTO the user data transfer object containing user info
+     * @param registrationDTO registration data
      * @param isAdmin flag indicating if the created user should have admin role
      * @return the newly created UserEntity
      */
-    UserEntity create(UserDTO userDTO, boolean isAdmin);
+    UserEntity create(RegistrationDTO registrationDTO, boolean isAdmin);
 
     /**
      * Retrieves all users.

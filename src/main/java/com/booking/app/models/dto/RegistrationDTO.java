@@ -2,28 +2,41 @@ package com.booking.app.models.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * Data Transfer Object (DTO) for User.
- * Used to transfer basic user data between application layers.
- */
 @Getter
 @Setter
-public class UserDTO {
+public class RegistrationDTO {
 
     @NotBlank(message = "Meno musí byť zadané.")
     @Size(max = 50, message = "Meno môže mať maximálne 50 znakov.")
+    @Pattern(
+            regexp = "^$|^[\\p{L}]+(?:[ '\\-][\\p{L}]+)*$",
+            message = "Meno obsahuje nepovolené znaky."
+    )
     private String firstName;
 
     @NotBlank(message = "Priezvisko musí byť zadané.")
     @Size(max = 50, message = "Priezvisko môže mať maximálne 50 znakov.")
+    @Pattern(
+            regexp = "^$|^[\\p{L}]+(?:[ '\\-][\\p{L}]+)*$",
+            message = "Priezvisko obsahuje nepovolené znaky."
+    )
     private String lastName;
 
     @NotBlank(message = "Email musí byť zadaný.")
     @Email(message = "Zadajte platnú e-mailovú adresu.")
     @Size(max = 254, message = "Email môže mať maximálne 254 znakov.")
     private String email;
+
+    @NotBlank(message = "Heslo je povinné.")
+    @Size(min = 8, max = 72, message = "Heslo musí mať 8 až 72 znakov.")
+    private String password;
+
+    @NotBlank(message = "Potvrdenie hesla je povinné.")
+    @Size(min = 8, max = 72, message = "Potvrdené heslo musí mať 8 až 72 znakov.")
+    private String confirmPassword;
 }

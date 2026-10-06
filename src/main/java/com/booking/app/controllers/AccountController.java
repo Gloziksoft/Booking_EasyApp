@@ -3,8 +3,7 @@ package com.booking.app.controllers;
 import com.booking.app.data.entities.UserEntity;
 import com.booking.app.data.enums.Role;
 import com.booking.app.data.repositories.UserRepository;
-import com.booking.app.models.dto.ReservationDTO;
-import com.booking.app.models.dto.UserDTO;
+import com.booking.app.models.dto.*;
 import com.booking.app.models.exceptions.DuplicateEmailException;
 import com.booking.app.models.exceptions.PasswordsDoNotEqualException;
 import com.booking.app.models.services.ReservationService;
@@ -57,39 +56,48 @@ public class AccountController {
     // --------------------------------------------------------------------
     @GetMapping("/register")
     public String renderRegister(Model model) {
-        if (!model.containsAttribute("userDTO")) {
-            model.addAttribute("userDTO", new UserDTO());
+        if (!model.containsAttribute("registrationDTO")) {
+            model.addAttribute("registrationDTO", new RegistrationDTO());
         }
         return "pages/account/register";
     }
 
     @PostMapping("/register")
     public String register(
-            @Valid @ModelAttribute("userDTO") UserDTO userDTO,
+            @Valid @ModelAttribute("registrationDTO") RegistrationDTO registrationDTO,
             BindingResult result,
             RedirectAttributes redirectAttributes
     ) {
 
         if (result.hasErrors()) {
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
-            redirectAttributes.addFlashAttribute("userDTO", userDTO);
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.registrationDTO",
+                    result
+            );
+            redirectAttributes.addFlashAttribute("registrationDTO", registrationDTO);
             return "redirect:/account/register";
         }
 
         try {
-            userService.create(userDTO, false);
+            userService.create(registrationDTO, false);
 
         } catch (DuplicateEmailException e) {
             result.rejectValue("email", "error", "Email už existuje.");
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
-            redirectAttributes.addFlashAttribute("userDTO", userDTO);
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.registrationDTO",
+                    result
+            );
+            redirectAttributes.addFlashAttribute("registrationDTO", registrationDTO);
             return "redirect:/account/register";
 
         } catch (PasswordsDoNotEqualException e) {
             result.rejectValue("password", "error", "Heslá sa nezhodujú.");
             result.rejectValue("confirmPassword", "error", "Heslá sa nezhodujú.");
-            redirectAttributes.addFlashAttribute("org.springframework.validation.BindingResult.userDTO", result);
-            redirectAttributes.addFlashAttribute("userDTO", userDTO);
+            redirectAttributes.addFlashAttribute(
+                    "org.springframework.validation.BindingResult.registrationDTO",
+                    result
+            );
+            redirectAttributes.addFlashAttribute("registrationDTO", registrationDTO);
             return "redirect:/account/register";
         }
 
@@ -130,21 +138,34 @@ public class AccountController {
     // FORGOT PASSWORD – zadanie emailu
     // --------------------------------------------------------------------
     @GetMapping("/forgot-password")
-    public String forgotPasswordForm() {
+    public String forgotPasswordForm(Model model) {
+        if (!model.containsAttribute("forgotPasswordDTO")) {
+            model.addAttribute("forgotPasswordDTO", new ForgotPasswordDTO());
+        }
+
         return "pages/account/forgot-password";
     }
 
     @PostMapping("/forgot-password")
-    public String forgotPasswordSubmit(@RequestParam String email, Model model) {
+    public String forgotPasswordSubmit(
+            @Valid @ModelAttribute("forgotPasswordDTO") ForgotPasswordDTO forgotPasswordDTO,
+            BindingResult result,
+            Model model) {
+
+        if (result.hasErrors()) {
+            return "pages/account/forgot-password";
+        }
+
+        String email = forgotPasswordDTO.getEmail();
 
         String token = userService.createPasswordResetToken(email);
-
-        // Nezobrazujeme, či účet existuje
         if (token != null) {
             emailService.sendPasswordResetEmail(email, token);
         }
 
-        model.addAttribute("message", "Ak účet existuje, poslali sme inštrukcie na email.");
+        model.addAttribute("message",
+                "Ak účet existuje, poslali sme inštrukcie na email.");
+
         return "pages/account/forgot-password";
     }
 
@@ -163,24 +184,38 @@ public class AccountController {
             return "pages/account/reset-password-error";
         }
 
-        model.addAttribute("token", token);
+        ResetPasswordDTO resetPasswordDTO = new ResetPasswordDTO();
+        resetPasswordDTO.setToken(token);
+
+        model.addAttribute("resetPasswordDTO", resetPasswordDTO);
+
         return "pages/account/reset-password";
     }
 
     @PostMapping("/reset-password")
     public String resetPassword(
-            @RequestParam String token,
-            @RequestParam String password,
-            @RequestParam String confirmPassword,
+            @Valid @ModelAttribute("resetPasswordDTO") ResetPasswordDTO resetPasswordDTO,
+            BindingResult result,
             Model model) {
 
-        if (!password.equals(confirmPassword)) {
-            model.addAttribute("token", token);
-            model.addAttribute("error", "Heslá sa nezhodujú.");
+        if (result.hasErrors()) {
             return "pages/account/reset-password";
         }
 
-        boolean success = userService.resetPassword(token, password);
+        if (!resetPasswordDTO.getPassword().equals(resetPasswordDTO.getConfirmPassword())) {
+            result.rejectValue(
+                    "confirmPassword",
+                    "error",
+                    "Heslá sa nezhodujú."
+            );
+
+            return "pages/account/reset-password";
+        }
+
+        boolean success = userService.resetPassword(
+                resetPasswordDTO.getToken(),
+                resetPasswordDTO.getPassword()
+        );
 
         if (!success) {
             model.addAttribute("error", "Token je neplatný alebo expiroval.");
