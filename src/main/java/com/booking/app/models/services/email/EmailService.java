@@ -18,6 +18,12 @@ public class EmailService {
     @Value("${app.base-url}")       // 🔥 sem sa vloží URL z properties
     private String baseUrl;
 
+    @Value("${spring.mail.from}")
+    private String mailFrom;
+
+    @Value("${app.mail.bcc}")
+    private String bccEmail;
+
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -30,9 +36,9 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, "UTF-8");
 
-            helper.setFrom("test@gloziksoft.sk");
+            helper.setFrom(mailFrom);
             helper.setTo(customerEmail);
-            helper.setBcc("peto7724@gmail.com");
+            helper.setBcc(bccEmail);
             helper.setSubject("Obnova hesla");
 
             String text = """
@@ -67,7 +73,7 @@ public class EmailService {
         }
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("test@gloziksoft.sk");
+        message.setFrom(mailFrom);
         message.setTo(customerEmail);
         message.setCc(adminEmail);
         message.setSubject("Potvrdenie rezervácie");
