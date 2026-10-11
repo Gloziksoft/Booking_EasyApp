@@ -10,7 +10,6 @@ import com.booking.app.models.services.ReservationService;
 import com.booking.app.models.services.UserService;
 import com.booking.app.models.services.email.EmailService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -28,18 +27,20 @@ import java.util.Optional;
 @RequestMapping("/account")
 public class AccountController {
 
-    @Autowired
-    private UserService userService;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private ReservationService reservationService;
-
+    private final UserService userService;
+    private final UserRepository userRepository;
+    private final ReservationService reservationService;
     private final EmailService emailService;
 
-    public AccountController(EmailService emailService) {
+    public AccountController(
+            UserService userService,
+            UserRepository userRepository,
+            ReservationService reservationService,
+            EmailService emailService
+    ) {
+        this.userService = userService;
+        this.userRepository = userRepository;
+        this.reservationService = reservationService;
         this.emailService = emailService;
     }
 
