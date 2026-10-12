@@ -31,7 +31,16 @@
         <div>
             <label for="email">Email:</label>
             <input type="email" id="email" th:field="*{email}" required/>
-            <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" style="color:red;"></p>
+
+            <p th:if="${#strings.isEmpty(registrationDTO.email) and #fields.hasErrors('email')}"
+               style="color:red;">
+                Email musí byť zadaný.
+            </p>
+
+            <p th:if="${!#strings.isEmpty(registrationDTO.email) and #fields.hasErrors('email')}"
+               th:errors="*{email}"
+               style="color:red;">
+            </p>
         </div>
 
         <!-- Password input -->
