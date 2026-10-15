@@ -42,7 +42,7 @@ public class ApplicationSecurityConfiguration {
      * Tvoja existujúca aplikačná logika.
      */
     @Bean
-    @Order(2)
+    @Order(1)
     public SecurityFilterChain applicationSecurity(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> auth
