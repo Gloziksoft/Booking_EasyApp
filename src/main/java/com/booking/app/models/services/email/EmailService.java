@@ -21,9 +21,6 @@ public class EmailService {
     @Value("${spring.mail.from}")
     private String mailFrom;
 
-    @Value("${app.mail.bcc}")
-    private String bccEmail;
-
     public EmailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
     }
@@ -38,7 +35,6 @@ public class EmailService {
 
             helper.setFrom(mailFrom);
             helper.setTo(customerEmail);
-            helper.setBcc(bccEmail);
             helper.setSubject("Obnova hesla");
 
             String text = """
