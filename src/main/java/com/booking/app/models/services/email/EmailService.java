@@ -62,6 +62,57 @@ public class EmailService {
         }
     }
 
+
+    public void sendEmailVerificationEmail(String customerEmail, String token) {
+        String verificationLink =
+                baseUrl + "/account/verify-email?token=" + token;
+
+        MimeMessage message = mailSender.createMimeMessage();
+
+        try {
+            MimeMessageHelper helper =
+                    new MimeMessageHelper(message, "UTF-8");
+
+            helper.setFrom(mailFrom);
+            helper.setTo(customerEmail);
+            helper.setSubject("Overenie e-mailovej adresy");
+
+            String text = """
+                Dobrý deň,
+
+                ďakujeme za registráciu v BookingApp.
+
+                Na dokončenie registrácie a aktiváciu účtu
+                potvrďte svoju e-mailovú adresu kliknutím na odkaz:
+
+                %s
+
+                Odkaz je platný 24 hodín.
+
+                Ak ste sa v BookingApp neregistrovali,
+                tento e-mail môžete ignorovať.
+
+                S pozdravom,
+                BookingApp tím
+                """.formatted(verificationLink);
+
+            helper.setText(text, false);
+
+            mailSender.send(message);
+
+        } catch (Exception e) {
+            System.err.println(
+                    "Nepodarilo sa odoslať overovací email: "
+                            + e.getMessage()
+            );
+
+            throw new IllegalStateException(
+                    "Odoslanie overovacieho emailu zlyhalo.", e
+            );
+        }
+    }
+
+
     public void sendReservationConfirmationEmail(String customerEmail) {
         if (customerEmail == null || customerEmail.isBlank()) {
             System.err.println("Nepodarilo sa odoslať email: customerEmail je null alebo prázdny");

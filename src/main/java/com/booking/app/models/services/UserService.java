@@ -47,4 +47,7 @@ public interface UserService {
 
     String createPasswordResetToken(String email);
     boolean resetPassword(String token, String newPassword);
+
+    String createEmailVerificationToken(Long userId);
+    boolean verifyEmail(String token);
 }

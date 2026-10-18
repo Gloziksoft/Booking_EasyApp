@@ -38,6 +38,16 @@ public class UserEntity {
     @Column(name = "reset_token_expiration")
     private LocalDateTime resetTokenExpiration;
 
+    // Email verification
+    @Column(name = "email_verified", nullable = false)
+    private boolean emailVerified = false;
+
+    @Column(name = "verification_token")
+    private String verificationToken;
+
+    @Column(name = "verification_token_expiration")
+    private LocalDateTime verificationTokenExpiration;
+
     // ---------------------------------------------------
     // Pomocná metóda
     // ---------------------------------------------------
@@ -110,5 +120,29 @@ public class UserEntity {
 
     public void setResetTokenExpiration(LocalDateTime resetTokenExpiration) {
         this.resetTokenExpiration = resetTokenExpiration;
+    }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+
+    public String getVerificationToken() {
+        return verificationToken;
+    }
+
+    public void setVerificationToken(String verificationToken) {
+        this.verificationToken = verificationToken;
+    }
+
+    public LocalDateTime getVerificationTokenExpiration() {
+        return verificationTokenExpiration;
+    }
+
+    public void setVerificationTokenExpiration(LocalDateTime verificationTokenExpiration) {
+        this.verificationTokenExpiration = verificationTokenExpiration;
     }
 }

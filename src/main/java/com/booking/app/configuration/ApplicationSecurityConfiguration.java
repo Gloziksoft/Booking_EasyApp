@@ -74,6 +74,7 @@ public class ApplicationSecurityConfiguration {
                                 "/account/register",
                                 "/account/login",
                                 "/account/forgot-password",
+                                "/account/verify-email",
                                 "/reservations/detail/**",
                                 "/send-test-email",
                                 "/email/**",

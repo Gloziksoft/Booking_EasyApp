@@ -78,6 +78,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userEntity.setLastName(registrationDTO.getLastName());
         userEntity.setPassword(passwordEncoder.encode(registrationDTO.getPassword()));
         userEntity.setRole(isAdmin ? Role.ADMIN : Role.USER);
+        // Administrátorské účty zostávajú aktívne.
+        // Bežný používateľ musí najskôr overiť e-mail.
+        userEntity.setEmailVerified(isAdmin);
 
         Set<String> roles = new HashSet<>();
         if (isAdmin) {
@@ -109,6 +112,10 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
+                user.isEmailVerified(),
+                true,
+                true,
+                true,
                 authorities
         );
     }
@@ -167,6 +174,60 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         // Zneplatníme token
         user.setResetToken(null);
         user.setResetTokenExpiration(null);
+
+        userRepository.save(user);
+
+        return true;
+    }
+
+    @Override
+    public String createEmailVerificationToken(Long userId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() ->
+                        new IllegalArgumentException("User not found: " + userId));
+
+        if (user.isEmailVerified()) {
+            return null;
+        }
+
+        String token = UUID.randomUUID().toString();
+
+        user.setVerificationToken(token);
+        user.setVerificationTokenExpiration(
+                LocalDateTime.now().plusHours(24)
+        );
+
+        userRepository.save(user);
+
+        return token;
+    }
+
+    @Override
+    public boolean verifyEmail(String token) {
+        if (token == null || token.isBlank()) {
+            return false;
+        }
+
+        Optional<UserEntity> optionalUser =
+                userRepository.findByVerificationToken(token);
+
+        if (optionalUser.isEmpty()) {
+            return false;
+        }
+
+        UserEntity user = optionalUser.get();
+
+        LocalDateTime expiration =
+                user.getVerificationTokenExpiration();
+
+        if (expiration == null ||
+                !expiration.isAfter(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setEmailVerified(true);
+        user.setVerificationToken(null);
+        user.setVerificationTokenExpiration(null);
 
         userRepository.save(user);
 

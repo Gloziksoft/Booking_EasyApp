@@ -70,6 +70,12 @@
                             <a class="btn btn-warning btn-sm flex-grow-1 flex-md-grow-0"
                                th:href="@{/offers/{id}/edit(id=${offer.offerId})}"
                                sec:authorize="hasRole('ADMIN')">Upraviť</a>
+                            <button type="submit"
+                                    class="btn btn-sm btn-danger"
+                                    sec:authorize="hasRole('ADMIN')"
+                                    onclick="return confirm('Naozaj chcete zmazať?');">
+                                Zmazať
+                            </button>
                         </div>
                     </div>
                 </div>

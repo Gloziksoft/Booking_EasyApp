@@ -91,6 +91,10 @@
         </button>
         <a th:href="@{/offers/{id}(id=${offer.offerId})}" class="btn btn-secondary">Zrušiť</a>
 
+        <button type="submit" class="btn btn-sm btn-danger"
+                onclick="return confirm('Naozaj chcete zmazať?');">Zmazať
+        </button>
+
     </form>
 </div>
 

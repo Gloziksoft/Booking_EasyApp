@@ -60,6 +60,29 @@ input[type="password"]:focus {
     outline: none;
 }
 
+
+.password-input-wrapper {
+    position: relative;
+}
+
+.password-input-wrapper input {
+    width: 100%;
+    padding-right: 42px;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    padding: 4px;
+    cursor: pointer;
+    color: #555;
+    font-size: 18px;
+}
+
 button[type="submit"] {
     color: #ffffff;
     border: none;
