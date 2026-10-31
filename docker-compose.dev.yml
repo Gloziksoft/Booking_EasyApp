@@ -4,9 +4,9 @@ services:
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: root
-      POSTGRES_DB: booking_app
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: booking_db
     volumes:
       - db_data_booking:/var/lib/postgresql/data
 
@@ -15,8 +15,8 @@ services:
     ports:
       - "8082:80"
     environment:
-      PGADMIN_DEFAULT_EMAIL: peto7724@gmail.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     depends_on:
       - db
 
