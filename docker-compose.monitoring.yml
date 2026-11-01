@@ -2,15 +2,8 @@ services:
   cadvisor:
     container_name: cadvisor
     image: gcr.io/cadvisor/cadvisor:v0.55.1
-
-    command:
-      - -logtostderr
-      - --docker_only=true
-      - --enable_metrics=cpu,memory,network
-
     ports:
       - "127.0.0.1:8081:8080"
-
     volumes:
       - /:/rootfs:ro
       - /var/run:/var/run:ro
