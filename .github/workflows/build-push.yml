@@ -74,6 +74,12 @@ jobs:
             echo "=== DEPLOY MONITORING ==="
             docker compose -f docker-compose.cadvisor.yml up -d
 
+            echo "=== REMOVE OLD MONITORING ==="
+            docker rm -f prometheus grafana 2>/dev/null || true
+            docker volume rm prometheus-data grafana-data 2>/dev/null || true
+            rm -f docker-compose.monitoring.yml monitoring/prometheus.yml
+            rmdir monitoring 2>/dev/null || true
+
             echo "=== CLEANUP UNUSED IMAGES ==="
             docker image prune -f
 
